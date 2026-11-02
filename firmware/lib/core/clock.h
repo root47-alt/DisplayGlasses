@@ -40,12 +40,14 @@ class Clock {
  public:
   void set(const DateTime& t, uint32_t nowMs);
   bool valid() const { return valid_; }
+  // Call at least once every few weeks (the HUD calls it constantly) so the
+  // millisecond counter wrapping around every 49.7 days never matters.
   DateTime now(uint32_t nowMs) const;
 
  private:
   bool valid_ = false;
-  int64_t baseEpoch_ = 0;
-  uint32_t baseMs_ = 0;
+  mutable int64_t baseEpoch_ = 0;
+  mutable uint32_t baseMs_ = 0;
 };
 
 }  // namespace clockutil

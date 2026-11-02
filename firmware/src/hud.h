@@ -1,6 +1,6 @@
 #pragma once
 // Everything drawn on the 128x64 OLED: the home screen (clock, date,
-// weather), notification pop-ups with auto-scroll, and short toasts.
+// weather), notification pop-ups with auto-scroll, and short messages.
 
 #include <Arduino.h>
 #include <U8g2lib.h>
@@ -34,16 +34,25 @@ class Hud {
   void setLink(Link link);
   void setWeather(const std::string& weather);
 
-  // Shows a notification now, or after the ones already waiting.
+  // Shows a notification now, or after the ones already waiting. Calls jump
+  // the line.
   void push(const Notice& n);
-  // A small message box over whatever is on screen.
+  // Takes a notification down (on screen or waiting), e.g. when it's read on
+  // the phone or a call ends. Ignores ids it doesn't have.
+  void remove(uint32_t id);
+  // A short message that takes over the screen for a moment.
   void toast(const std::string& message, uint32_t ms = 1500);
   // Clears the screen and shows two centered lines right away.
   void splash(const char* title, const char* detail);
+  // Redraw on the next loop(), e.g. after the time was corrected.
+  void refresh() { dirty_ = true; }
 
   // Short button press: dismiss the current notification, or bring back the
   // last one when on the home screen.
   void onShortPress();
+
+  bool showing() const { return showing_; }
+  size_t waiting() const { return queue_.size(); }
 
   // Call every loop(). Advances scrolling and timers, and redraws only when
   // something changed.
@@ -70,6 +79,7 @@ class Hud {
 
   const clockutil::Clock* clock_ = nullptr;
   bool use24h_ = false;
+  int64_t lastClockKey_ = -1;  // the minute last drawn
   Link link_ = Link::Searching;
   std::string weather_;
 
@@ -81,13 +91,12 @@ class Hud {
   std::vector<Line> lines_;
   size_t scroll_ = 0;
   uint32_t nextStepAt_ = 0;
-  uint32_t endAt_ = 0;  // 0 = not decided yet (still scrolling)
+  uint32_t endAt_ = 0;
+  bool endSet_ = false;  // false while the text is still scrolling
 
   std::string toast_;
   uint32_t toastUntil_ = 0;
+  bool toastActive_ = false;
 
   bool dirty_ = true;
-  int lastMinute_ = -1;
-  uint32_t lastBlink_ = 0;
-  bool blinkOn_ = true;
 };

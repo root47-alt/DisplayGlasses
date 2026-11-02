@@ -13,10 +13,15 @@ C++ for the ESP32-S3, built with [PlatformIO](https://platformio.org).
 |---|---|
 | `feather_demo` | **Start here.** Fake notifications on a timer, no Bluetooth. Tests the screen and the optics. |
 | `feather` | The real thing: pairs with your iPhone ([docs/iphone-setup.md](../docs/iphone-setup.md)). |
+| `feather_v2`, `feather_v2_demo` | The same two for the ESP32 Feather V2 (the in-stock alternative board). |
 | `wokwi` | Demo mode for the Wokwi simulator. |
 | `native` | Unit tests that run on your computer. |
 
 ## Flash the board
+
+**Easiest:** open the [browser flasher](https://root47-alt.github.io/DisplayGlasses/flash/) in Chrome or Edge on a computer, plug in the board, and click Install. Nothing to set up.
+
+**With PlatformIO** (needed once you change the code):
 
 1. Plug the screen into the Feather's STEMMA QT port, then plug the Feather into your computer with a USB-C data cable.
 2. In the blue PlatformIO bar at the bottom of VS Code, click the environment selector and pick `env:feather_demo` (later `env:feather`).
@@ -61,13 +66,21 @@ The Feather's **BOOT** button is the only button (any button wired from a pin to
 
 The wiring is in `diagram.json`, and `wokwi.toml` points the simulator at the build.
 
-## Run the unit tests
+## Run the tests
+
+Unit tests for the logic in `lib/core` (text, clock, the iPhone notification protocol):
 
 ```bash
 pio test -e native
 ```
 
-This needs a C++ compiler on your computer: Xcode command line tools on a Mac, `build-essential` on Linux, or WSL on Windows.
+Screen tests, which run `src/hud.cpp` on your computer and check the pixels it draws (see [tools/hudsim](../tools/hudsim/README.md)):
+
+```bash
+../tools/hudsim/build.sh --test
+```
+
+Both need a C++ compiler on your computer: Xcode command line tools on a Mac, `build-essential` on Linux, or WSL on Windows. GitHub runs both, and builds every firmware version, on each push.
 
 ## Code map
 
@@ -76,7 +89,7 @@ This needs a C++ compiler on your computer: Xcode command line tools on a Mac, `
 | `src/main.cpp` | Wires everything together |
 | `src/config.h` | **Settings:** pins, 12/24-hour clock, brightness, Bluetooth name |
 | `src/hud.*` | Draws the screens: clock, notification pop-ups, toasts |
-| `src/iphone_link.*` | Bluetooth pairing and the iPhone notification and time services |
+| `src/iphone_link.*` | Bluetooth pairing and the iPhone notification and time services, on their own task so the screen never waits |
 | `src/demo.*` | Fake notifications for demo mode |
 | `src/button.h` | Short, long and very long presses |
 | `lib/core/text.*` | Cleans up and word-wraps text for the font |
@@ -84,3 +97,4 @@ This needs a C++ compiler on your computer: Xcode command line tools on a Mac, `
 | `lib/core/ancs.*` | Apple's notification protocol, byte by byte |
 | `lib/core/notice.*` | Decides what each notification becomes (pop-up, weather line, Claude answer) |
 | `test/test_core/` | Unit tests for `lib/core` |
+| `scripts/merge_bin.py` | Makes `merged.bin` after each build, for the browser flasher |

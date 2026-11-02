@@ -25,10 +25,11 @@ Button button(BUTTON_PIN);
 clockutil::Clock phoneClock;
 Preferences prefs;
 
-void onNotification(const std::string& appId, uint8_t category, const std::string& title,
+void onNotification(uint32_t uid, const std::string& appId, uint8_t category, const std::string& title,
                     const std::string& subtitle, const std::string& message) {
   Serial.printf("[notify] %s: %s\n", appId.c_str(), title.c_str());
-  const notice::Routed r = notice::route(appId, category, title, subtitle, message);
+  notice::Routed r = notice::route(appId, category, title, subtitle, message);
+  r.notice.id = uid;
   switch (r.route) {
     case notice::Route::Show: hud.push(r.notice); break;
     case notice::Route::Weather: hud.setWeather(r.weather); break;
@@ -68,15 +69,23 @@ void setup() {
   demo::begin(phoneClock, onNotification);
 #else
   hud.setLink(Link::Searching);
-  hud.splash("DisplayGlasses", "pair in iPhone Settings");
+  hud.splash("DisplayGlasses", "pair in Bluetooth");
   delay(1500);
   iphone::Handlers handlers;
   handlers.onNotification = onNotification;
-  handlers.onTime = [](const clockutil::DateTime& t) { phoneClock.set(t, millis()); };
+  handlers.onRemoved = [](uint32_t uid) { hud.remove(uid); };
+  handlers.onTime = [](const clockutil::DateTime& t) {
+    phoneClock.set(t, millis());
+    hud.refresh();
+  };
   handlers.onLinkChange = [](bool connected, bool ready) {
+    static bool wasReady = false;
     hud.setLink(ready ? Link::Ready : (connected ? Link::Pairing : Link::Searching));
-    if (ready) hud.toast("iPhone connected");
-    else if (!connected) hud.toast("iPhone disconnected");
+    // Only announce changes from a working connection, so a phone that keeps
+    // retrying doesn't flash messages.
+    if (ready && !wasReady) hud.toast("iPhone connected");
+    else if (!ready && wasReady) hud.toast(connected ? "Reconnecting..." : "iPhone disconnected");
+    wasReady = ready;
   };
   iphone::begin(DEVICE_NAME, handlers);
 #endif

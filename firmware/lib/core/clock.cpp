@@ -89,8 +89,15 @@ void Clock::set(const DateTime& t, uint32_t nowMs) {
 }
 
 DateTime Clock::now(uint32_t nowMs) const {
-  // Unsigned subtraction stays correct when millis() wraps after ~49 days.
-  const uint32_t elapsedMs = nowMs - baseMs_;
+  // Unsigned subtraction stays correct across one millis() wrap. Moving the
+  // base forward every hour keeps it that way however long the glasses run.
+  uint32_t elapsedMs = nowMs - baseMs_;
+  if (elapsedMs >= 3600000u) {
+    const uint32_t secs = elapsedMs / 1000;
+    baseEpoch_ += secs;
+    baseMs_ += secs * 1000;
+    elapsedMs -= secs * 1000;
+  }
   return fromEpoch(baseEpoch_ + elapsedMs / 1000);
 }
 

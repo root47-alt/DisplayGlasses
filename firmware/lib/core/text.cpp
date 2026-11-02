@@ -71,7 +71,8 @@ bool isSpace(uint32_t cp) {
          cp == 0x205F || cp == 0x3000;
 }
 
-bool isLineBreak(uint32_t cp) { return cp == '\n' || cp == 0x2028 || cp == 0x2029; }
+// A lone '\r' counts too (old Mac line endings); "\r\n" collapses into one break.
+bool isLineBreak(uint32_t cp) { return cp == '\n' || cp == '\r' || cp == 0x2028 || cp == 0x2029; }
 
 // ASCII stand-ins for common typographic characters outside Latin-1.
 const char* replacement(uint32_t cp) {

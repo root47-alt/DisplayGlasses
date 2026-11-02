@@ -51,7 +51,8 @@ void begin(clockutil::Clock& clock, const NotifyFn& notify) {
 void loop() {
   if (!g_notify || static_cast<int32_t>(millis() - g_dueAt) < 0) return;
   const Fake& f = kScript[g_next];
-  g_notify(f.appId, f.category, f.title, "", f.message);
+  static uint32_t uid = 0;
+  g_notify(++uid, f.appId, f.category, f.title, "", f.message);
   g_next = (g_next + 1) % kScriptLength;
   g_dueAt = millis() + kEveryMs;
 }

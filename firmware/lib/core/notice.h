@@ -11,6 +11,7 @@ enum class NoticeKind : uint8_t {
 };
 
 struct Notice {
+  uint32_t id = 0;    // the iPhone's id for it (0 = none), so it can be taken down again
   NoticeKind kind = NoticeKind::Generic;
   std::string app;    // header label, e.g. "Messages"
   std::string title;  // sender or headline, drawn in bold

@@ -10,8 +10,9 @@
 
 namespace demo {
 
-using NotifyFn = std::function<void(const std::string& appId, uint8_t category, const std::string& title,
-                                    const std::string& subtitle, const std::string& message)>;
+using NotifyFn = std::function<void(uint32_t uid, const std::string& appId, uint8_t category,
+                                    const std::string& title, const std::string& subtitle,
+                                    const std::string& message)>;
 
 // Sets the clock to 9:41 and starts the fake notifications.
 void begin(clockutil::Clock& clock, const NotifyFn& notify);

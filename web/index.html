@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DisplayGlasses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;600;800&family=Chivo+Mono:wght@400&display=swap">
+<style>
+  :root {
+    --bg: #eef1ef; --panel: #ffffff; --ink: #17201d; --muted: #5b6863; --line: #d4dcd8; --accent: #0b7a75;
+    --body: "Chivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Chivo Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0e1412; --panel: #151d1a; --ink: #e5ece9; --muted: #93a39d; --line: #27332f; --accent: #4cc3bb; color-scheme: dark; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body);
+         padding: 28px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); }
+  main { max-width: 900px; margin: 0 auto; display: grid; gap: 22px; }
+  h1 { font: 800 clamp(30px, 6vw, 44px)/1.05 var(--body); margin: 0; letter-spacing: -0.015em; }
+  .lede { color: var(--muted); max-width: 60ch; margin: 0; }
+  .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  a.card { display: grid; gap: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+           padding: 16px; color: var(--ink); text-decoration: none; }
+  a.card:hover, a.card:focus-visible { border-color: var(--accent); outline: none; }
+  a.card strong { font-size: 17px; }
+  a.card span { color: var(--muted); font-size: 14px; }
+  figure { margin: 0; display: grid; gap: 8px; }
+  figure img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); }
+  figcaption { color: var(--muted); font-size: 13.5px; }
+  .demo { max-width: 560px; }
+  code { font-family: var(--mono); }
+</style>
+</head>
+<body>
+<main>
+  <h1>DisplayGlasses</h1>
+  <p class="lede">DIY smart glasses with a small screen in front of one eye that only you can see: iPhone notifications, the time, the weather and answers from Claude, floating over the real world.</p>
+
+  <nav class="links" aria-label="Tools">
+    <a class="card" href="flash/"><strong>Flash the firmware</strong><span>Install it on your board from Chrome. No setup.</span></a>
+    <a class="card" href="optics/"><strong>Optics calculator</strong><span>Pick the lens and beam splitter before you buy.</span></a>
+    <a class="card" href="https://github.com/root47-alt/DisplayGlasses"><strong>Source on GitHub</strong><span>Firmware, 3D models, parts list and guides.</span></a>
+  </nav>
+
+  <figure class="demo">
+    <img src="screens/demo.gif" alt="The glasses screen in demo mode: clock, a message, a Claude answer scrolling, a calendar alert">
+    <figcaption>Demo mode, drawn by the real firmware code in the screen simulator.</figcaption>
+  </figure>
+  <figure>
+    <img src="screens/overview.png" alt="Every screen the glasses show">
+    <figcaption>Every screen, rendered pixel for pixel.</figcaption>
+  </figure>
+</main>
+</body>
+</html>

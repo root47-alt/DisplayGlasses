@@ -1,0 +1,88 @@
+name: Build
+
+# On every push and pull request: run the unit tests, build every firmware
+# version, render the screens with the simulator and check the optics model.
+# On main it also publishes the website (browser flasher, optics calculator,
+# screen pictures) to GitHub Pages.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            firmware/.pio/libdeps
+          key: pio-${{ runner.os }}-${{ hashFiles('firmware/platformio.ini') }}
+
+      - name: Install tools
+        run: pip install platformio pillow
+
+      - name: Unit tests
+        working-directory: firmware
+        run: pio test -e native
+
+      - name: Build firmware
+        working-directory: firmware
+        run: pio run -e feather -e feather_demo -e feather_v2 -e feather_v2_demo -e wokwi
+
+      - name: Screen tests and simulator
+        run: |
+          tools/hudsim/build.sh --test
+          build/hudsim/hudsim build/hudsim/frames.jsonl
+          python3 tools/hudsim/render.py build/hudsim/frames.jsonl build/site/screens
+
+      - name: Check the optics model
+        run: python3 tools/optics/optics.py --sweep
+
+      - name: Assemble website
+        run: python3 web/build_site.py build/site
+
+      - name: Upload firmware files
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: build/site/flash/bin/*.bin
+
+      - name: Upload website
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/site
+
+  deploy:
+    # Needs Pages turned on once: repo Settings > Pages > Source: GitHub Actions.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

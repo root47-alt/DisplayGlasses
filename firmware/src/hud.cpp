@@ -23,9 +23,11 @@ constexpr size_t kMaxQueued = 8;
 constexpr uint32_t kFirstPageMs = 3000;
 constexpr uint32_t kLineMs = 1500;
 constexpr uint32_t kEndHoldMs = 4000;
-constexpr uint32_t kCallHoldMs = 30000;
+constexpr uint32_t kCallHoldMs = 30000;  // until the phone says the call ended
 
 float paceFor(NoticeKind kind) { return kind == NoticeKind::Claude ? 1.3f : 1.0f; }
+
+bool reached(uint32_t now, uint32_t when) { return static_cast<int32_t>(now - when) >= 0; }
 
 }  // namespace
 
@@ -98,8 +100,11 @@ void Hud::push(const Notice& n) {
     startNotice(n, now);
     return;
   }
-  if (n.kind == NoticeKind::Call) {  // calls jump the line
-    queue_.push_front(current_);
+  if (n.kind == NoticeKind::Call) {
+    // The interrupted notification goes back to the front of the line; an
+    // older call is simply replaced by the newer one.
+    if (current_.kind != NoticeKind::Call) queue_.push_front(current_);
+    while (queue_.size() > kMaxQueued) queue_.pop_back();
     startNotice(n, now);
     return;
   }
@@ -107,9 +112,18 @@ void Hud::push(const Notice& n) {
   queue_.push_back(n);
 }
 
+void Hud::remove(uint32_t id) {
+  if (id == 0) return;
+  queue_.erase(std::remove_if(queue_.begin(), queue_.end(), [id](const Notice& n) { return n.id == id; }),
+               queue_.end());
+  if (hasLast_ && last_.id == id && last_.kind == NoticeKind::Call) hasLast_ = false;
+  if (showing_ && current_.id == id) finishNotice(millis());
+}
+
 void Hud::toast(const std::string& message, uint32_t ms) {
   toast_ = message;
   toastUntil_ = millis() + ms;
+  toastActive_ = true;
   dirty_ = true;
 }
 
@@ -117,9 +131,9 @@ void Hud::splash(const char* title, const char* detail) {
   if (!present_) return;
   oled_.clearBuffer();
   oled_.setFont(kFontBold);
-  drawCentered(title, 28);
+  drawCentered(fit(title, kWidth - 4), 28);
   oled_.setFont(kFontText);
-  drawCentered(detail, 44);
+  drawCentered(fit(detail, kWidth - 4), 44);
   oled_.sendBuffer();
   dirty_ = true;  // the next loop() redraws the normal screen
 }
@@ -153,12 +167,14 @@ void Hud::startNotice(const Notice& n, uint32_t now) {
   const float pace = paceFor(n.kind);
   if (n.kind == NoticeKind::Call) {
     endAt_ = now + kCallHoldMs;
+    endSet_ = true;
   } else if (lines_.size() <= kVisibleLines) {
     const uint32_t chars = static_cast<uint32_t>(text::length(n.title) + text::length(n.body));
     const uint32_t hold = std::min<uint32_t>(12000, std::max<uint32_t>(4000, 2500 + 60 * chars));
     endAt_ = now + static_cast<uint32_t>(hold * pace);
+    endSet_ = true;
   } else {
-    endAt_ = 0;  // decided once the last line scrolls into view
+    endSet_ = false;  // decided once the last line scrolls into view
     nextStepAt_ = now + static_cast<uint32_t>(kFirstPageMs * pace);
   }
   dirty_ = true;
@@ -181,35 +197,30 @@ void Hud::loop() {
 
   if (showing_) {
     const float pace = paceFor(current_.kind);
-    if (endAt_ == 0 && static_cast<int32_t>(now - nextStepAt_) >= 0) {
+    if (!endSet_ && reached(now, nextStepAt_)) {
       ++scroll_;
       dirty_ = true;
       if (scroll_ + kVisibleLines >= lines_.size()) {
         endAt_ = now + static_cast<uint32_t>(kEndHoldMs * pace);
+        endSet_ = true;
       } else {
         nextStepAt_ = now + static_cast<uint32_t>(kLineMs * pace);
       }
     }
-    if (endAt_ != 0 && static_cast<int32_t>(now - endAt_) >= 0) finishNotice(now);
+    if (endSet_ && reached(now, endAt_)) finishNotice(now);
   }
 
-  if (toastUntil_ != 0 && static_cast<int32_t>(now - toastUntil_) >= 0) {
-    toastUntil_ = 0;
-    toast_.clear();
+  if (toastActive_ && reached(now, toastUntil_)) {
+    toastActive_ = false;
     dirty_ = true;
   }
 
-  if (!showing_) {
-    if (clock_ != nullptr && clock_->valid()) {
-      const int minute = clock_->now(now).minute;
-      if (minute != lastMinute_) {
-        lastMinute_ = minute;
-        dirty_ = true;
-      }
-    }
-    if ((link_ == Link::Searching || link_ == Link::Pairing) && now - lastBlink_ >= 1000) {
-      lastBlink_ = now;
-      blinkOn_ = !blinkOn_;
+  // Redraw whenever the minute shown changes (including a corrected time).
+  if (clock_ != nullptr && clock_->valid()) {
+    const clockutil::DateTime t = clock_->now(now);
+    const int64_t key = ((static_cast<int64_t>(t.year) * 13 + t.month) * 32 + t.day) * 1440 + t.hour * 60 + t.minute;
+    if (key != lastClockKey_) {
+      lastClockKey_ = key;
       dirty_ = true;
     }
   }
@@ -217,12 +228,13 @@ void Hud::loop() {
   if (!dirty_ || !present_) return;
   dirty_ = false;
   oled_.clearBuffer();
-  if (showing_) {
+  if (toastActive_) {
+    drawToast();
+  } else if (showing_) {
     drawNotice();
   } else {
     drawHome(now);
   }
-  if (!toast_.empty()) drawToast();
   oled_.sendBuffer();
 }
 
@@ -241,8 +253,8 @@ void Hud::drawHome(uint32_t now) {
   const char* status = "";
   switch (link_) {
     case Link::Demo: status = "DEMO"; break;
-    case Link::Searching: status = blinkOn_ ? "no phone" : ""; break;
-    case Link::Pairing: status = blinkOn_ ? "pairing" : ""; break;
+    case Link::Searching: status = "no phone"; break;
+    case Link::Pairing: status = "pairing..."; break;
     case Link::Ready: status = ""; break;
   }
   if (*status) oled_.drawUTF8(kWidth - 2 - textWidth(status) + dx, 9 + dy, status);
@@ -298,18 +310,16 @@ void Hud::drawNotice() {
   }
 }
 
+// A boxed message in the middle of an otherwise empty screen.
 void Hud::drawToast() {
   oled_.setFont(kFontText);
-  const std::string msg = fit(toast_, kWidth - 12);
-  const int w = textWidth(msg) + 10;
-  const int h = 15;
+  const std::string msg = fit(toast_, kWidth - 16);
+  const int w = textWidth(msg) + 14;
+  const int h = 19;
   const int x = (kWidth - w) / 2;
   const int y = (64 - h) / 2;
-  oled_.setDrawColor(0);
-  oled_.drawBox(x - 1, y - 1, w + 2, h + 2);
-  oled_.setDrawColor(1);
-  oled_.drawRFrame(x, y, w, h, 3);
-  oled_.drawUTF8(x + 5, y + 11, msg.c_str());
+  oled_.drawRFrame(x, y, w, h, 4);
+  oled_.drawUTF8(x + 7, y + 13, msg.c_str());
 }
 
 void Hud::drawCentered(const std::string& s, int baseline) {

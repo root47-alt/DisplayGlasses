@@ -42,6 +42,10 @@ void test_sanitize_collapses_blank_lines() {
   TEST_ASSERT_EQUAL_STRING("a\nb\nc", text::sanitize("a \n\n\nb\r\n c\n").c_str());
 }
 
+void test_sanitize_lone_carriage_return_breaks_lines() {
+  TEST_ASSERT_EQUAL_STRING("line1\nline2", text::sanitize("line1\rline2").c_str());
+}
+
 void test_wrap_words() {
   assertLines({"hello", "world"}, text::wrap("hello world", 30, measure6));
   assertLines({"a bc", "def"}, text::wrap("a bc def", 30, measure6));
@@ -107,6 +111,23 @@ void test_clock_counts_forward() {
   TEST_ASSERT_EQUAL_INT(9, later.hour);
   TEST_ASSERT_EQUAL_INT(42, later.minute);
   TEST_ASSERT_EQUAL_INT(12, later.second);
+}
+
+void test_clock_survives_many_millis_wraps() {
+  // 60 days of running, checked once an hour: millis() wraps around once.
+  clockutil::Clock clock;
+  clock.set(clockutil::fromEpoch(clockutil::toEpoch(2026, 11, 2, 9, 41, 0)), 123456u);
+  uint32_t ms = 123456u;
+  for (int hour = 0; hour < 24 * 60; ++hour) {
+    ms += 3600000u;  // wraps naturally as a uint32_t
+    clock.now(ms);
+  }
+  const clockutil::DateTime t = clock.now(ms);
+  TEST_ASSERT_EQUAL_INT(2027, t.year);
+  TEST_ASSERT_EQUAL_INT(1, t.month);
+  TEST_ASSERT_EQUAL_INT(1, t.day);  // Nov 2 + 60 days
+  TEST_ASSERT_EQUAL_INT(9, t.hour);
+  TEST_ASSERT_EQUAL_INT(41, t.minute);
 }
 
 // ---------- ANCS ----------
@@ -222,6 +243,7 @@ int main(int, char**) {
   RUN_TEST(test_sanitize_maps_smart_punctuation);
   RUN_TEST(test_sanitize_drops_emoji_and_collapses_spaces);
   RUN_TEST(test_sanitize_collapses_blank_lines);
+  RUN_TEST(test_sanitize_lone_carriage_return_breaks_lines);
   RUN_TEST(test_wrap_words);
   RUN_TEST(test_wrap_splits_long_words);
   RUN_TEST(test_wrap_counts_code_points_not_bytes);
@@ -230,6 +252,7 @@ int main(int, char**) {
   RUN_TEST(test_epoch_round_trip_and_weekday);
   RUN_TEST(test_format_time_and_date);
   RUN_TEST(test_clock_counts_forward);
+  RUN_TEST(test_clock_survives_many_millis_wraps);
   RUN_TEST(test_parse_source_event);
   RUN_TEST(test_build_get_attributes);
   RUN_TEST(test_assembler_joins_fragments);
