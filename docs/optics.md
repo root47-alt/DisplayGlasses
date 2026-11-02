@@ -18,6 +18,25 @@ Your eye can't focus on anything closer than about 10 cm. A convex lens placed s
 
 This is a top view of your right eye, looking up the page. The display sits out by your temple, facing your nose. The splitter in front of your eye turns its light 90° into your eye, and you still see the world through the splitter.
 
+## What the calculator says
+
+The [optics calculator](../tools/optics/README.md) models the screen, lens and splitter before you buy anything. With the eye 20 mm from the splitter (where a glasses lens would be):
+
+| Setup | Image size | Eye box (sideways) | Verdict |
+|---|---|---|---|
+| 40 mm lens + 15 mm cube | 31° × 16° | 0 mm | Edges always a bit dim; image very wide |
+| **50 mm lens (25 mm wide) + 25 × 20 mm plate** | **25° × 12.5°** | **2.8 mm** | **Good balance. Recommended** |
+| 50 mm lens + 20 mm cube | 25° × 13° | 5.9 mm | Works, but the cube weighs 20 g |
+| 60 mm lens (30 mm wide) + 25 × 20 mm plate | 21° × 10° | 6.3 mm | Most forgiving, longest module |
+
+What that means:
+
+- **Use a lens with a focal length of about 50 mm.** The screen then looks like a 55-inch TV seen from about 2.7 m, and capital letters look about 24 mm tall on a sign 1 m away. That's easy to read. Shorter focal lengths make the image so wide it crowds that eye's view.
+- **Use a thin flat beam splitter, not the 15 mm cube.** A 25 × 20 mm plate weighs about 1 g and shows the whole screen. A 15 mm cube is too small: the left and right edges always look dim.
+- **The screen sits about 49 mm from the lens**, and it stays sharp anywhere from 45 to 50 mm (text floating from 0.5 m out to infinity). The glasses module needs a focus slot about 5 mm long.
+- **The light path from screen to splitter is about 62 mm.** That's longer than the space beside your eye, so in the glasses the path runs back along the arm and a small mirror turns it toward the splitter.
+- **The eye box is small (about 3 mm sideways).** The glasses need to sit in the same place on your face every time, so a snug fit matters. A 30 mm lens with a 60 mm focal length roughly doubles it.
+
 ## Test it on the optics bench (about 30 minutes)
 
 Print the bench first ([cad/README.md](../cad/README.md)) and put the screen, lens and cube in their holders. The OLED should be running the `feather_demo` firmware. No printer handy? Cardboard and Blu-Tack work too; you'll just measure the distances with a ruler.

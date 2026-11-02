@@ -6,3 +6,6 @@ firmware/.vscode/
 .DS_Store
 Thumbs.db
 *.swp
+
+# Python
+__pycache__/

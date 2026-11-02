@@ -1,0 +1,510 @@
+<title>DisplayGlasses Optics</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;600;800&family=Chivo+Mono:wght@400;600&display=swap">
+<style>
+  /* Layout: an optics bench readout. Controls rail on the left, readings and to-scale drawings on the right; one column on phones. */
+  :root {
+    --bg: #eef1ef;
+    --panel: #ffffff;
+    --ink: #17201d;
+    --muted: #5b6863;
+    --line: #d4dcd8;
+    --accent: #0b7a75;
+    --accent-ink: #ffffff;
+    --ray: #c97c00;
+    --good: #2e7d4f;
+    --warn: #a86a12;
+    --bad: #b3412f;
+    --display: "Chivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --body: "Chivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Chivo Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1412; --panel: #151d1a; --ink: #e5ece9; --muted: #93a39d; --line: #27332f;
+      --accent: #4cc3bb; --accent-ink: #06201e; --ray: #f2b24a;
+      --good: #5cc28a; --warn: #e2a64a; --bad: #ec806c;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1412; --panel: #151d1a; --ink: #e5ece9; --muted: #93a39d; --line: #27332f;
+    --accent: #4cc3bb; --accent-ink: #06201e; --ray: #f2b24a;
+    --good: #5cc28a; --warn: #e2a64a; --bad: #ec806c;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 var(--body);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 20px 40px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px; }
+  header { display: grid; gap: 6px; }
+  h1 { font: 800 clamp(26px, 4vw, 36px)/1.1 var(--display); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); max-width: 68ch; }
+  .spec { font: 400 12.5px/1.4 var(--mono); color: var(--muted); }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 880px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+  h2 {
+    font: 600 12px/1.2 var(--body); text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin: 0 0 12px;
+  }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .chip {
+    font: 600 13px/1 var(--body); color: var(--ink); background: transparent;
+    border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .chip:focus-visible, input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .controls { display: grid; gap: 14px; }
+  .field { display: grid; gap: 4px; }
+  .field-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .field label { font-weight: 600; font-size: 14px; }
+  .field output { font: 600 14px var(--mono); font-variant-numeric: tabular-nums; }
+  .field small { color: var(--muted); font-size: 12.5px; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  select { font: 14px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { font: 600 14px var(--body); padding: 8px; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+
+  .results { display: grid; gap: 20px; min-width: 0; }
+  .verdict { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .pill { font: 600 12px/1 var(--body); text-transform: uppercase; letter-spacing: 0.06em; border-radius: 999px; padding: 6px 10px; border: 1px solid currentColor; }
+  .pill.good { color: var(--good); } .pill.warn { color: var(--warn); } .pill.bad { color: var(--bad); }
+  .verdict p { margin: 0; min-width: 0; flex: 1 1 260px; }
+
+  .readings { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .reading { background: var(--panel); padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+  .reading .k { font-size: 12.5px; color: var(--muted); }
+  .reading .v { font: 600 22px/1.2 var(--mono); font-variant-numeric: tabular-nums; }
+  .reading .h { font-size: 12.5px; color: var(--muted); }
+  .reading .v.good { color: var(--good); } .reading .v.warn { color: var(--warn); } .reading .v.bad { color: var(--bad); }
+
+  .figure { display: grid; gap: 10px; }
+  .figure-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .figure-head h2 { margin: 0; }
+  .shift { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+  .shift input { width: 160px; }
+  .shift output { font: 600 13px var(--mono); color: var(--ink); min-width: 56px; }
+  canvas { width: 100%; display: block; border-radius: 8px; }
+  .caption { margin: 0; font-size: 13px; color: var(--muted); }
+  .svg-box { overflow-x: auto; }
+  svg { display: block; width: 100%; height: auto; min-width: 320px; }
+  svg text { font-family: var(--mono); fill: var(--muted); }
+  svg .label { fill: var(--ink); font-weight: 600; }
+  svg .part { fill: none; stroke: var(--ink); stroke-width: 1.2; }
+  svg .glass { fill: var(--accent); fill-opacity: 0.12; stroke: var(--accent); stroke-width: 1.2; }
+  svg .mirror { stroke: var(--accent); stroke-width: 2.2; }
+  svg .ray { stroke: var(--ray); stroke-width: 1.4; fill: none; }
+  svg .ray.edge { stroke-opacity: 0.55; stroke-dasharray: 4 3; }
+  svg .dim { stroke: var(--muted); stroke-width: 0.8; }
+  svg .active { stroke: var(--ray); stroke-width: 3; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .table-box { overflow-x: auto; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+  th:first-child, td:first-child { white-space: normal; min-width: 170px; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover td { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+
+  .notes { display: grid; gap: 8px; color: var(--muted); font-size: 13.5px; max-width: 80ch; }
+  .notes p { margin: 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>DisplayGlasses Optics</h1>
+    <p class="lede">Try lenses and beam splitters before you buy them. Move the sliders to see how big the text looks, whether your eye can see the whole screen, and where the screen has to sit to be in focus.</p>
+    <p class="spec">Screen: 0.96 in SSD1306 OLED · 128 × 64 px · 0.17 mm pixels · 21.7 × 10.9 mm lit area · 4 mm pupil</p>
+  </header>
+
+  <div class="layout">
+    <section class="panel" aria-labelledby="parts-h">
+      <h2 id="parts-h">Parts</h2>
+      <div class="presets" id="presets" role="group" aria-label="Common setups"></div>
+      <div class="controls">
+        <div class="field">
+          <div class="field-top"><label for="f">Lens focal length</label><output id="f-out" for="f"></output></div>
+          <input id="f" type="range" min="25" max="80" step="1">
+          <small>Printed on the lens listing, often as "f".</small>
+        </div>
+        <div class="field">
+          <div class="field-top"><label for="lensD">Lens diameter</label><output id="lensD-out" for="lensD"></output></div>
+          <input id="lensD" type="range" min="15" max="40" step="1">
+        </div>
+        <div class="field">
+          <span class="field-top"><label id="splitter-l">Beam splitter</label></span>
+          <div class="seg" role="group" aria-labelledby="splitter-l">
+            <button type="button" id="sp-plate" data-splitter="plate">Flat plate</button>
+            <button type="button" id="sp-cube" data-splitter="cube">Cube</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-top"><label for="size" id="size-l">Plate width</label><output id="size-out" for="size"></output></div>
+          <input id="size" type="range" min="10" max="35" step="0.5">
+          <small id="size-help">The side that tilts 45° across the light.</small>
+        </div>
+        <div class="field" id="plateH-field">
+          <div class="field-top"><label for="plateH">Plate height</label><output id="plateH-out" for="plateH"></output></div>
+          <input id="plateH" type="range" min="10" max="30" step="1">
+        </div>
+        <div class="field">
+          <div class="field-top"><label for="eye">Eye to splitter center</label><output id="eye-out" for="eye"></output></div>
+          <input id="eye" type="range" min="14" max="30" step="0.5">
+          <small>About 20 mm when the splitter sits where a glasses lens would.</small>
+        </div>
+        <div class="field">
+          <div class="field-top"><label for="image">Text floats at</label></div>
+          <select id="image">
+            <option value="500">0.5 m</option>
+            <option value="1000">1 m</option>
+            <option value="2000">2 m</option>
+            <option value="5000">5 m</option>
+            <option value="1000000">Far away</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <div class="results">
+      <section class="panel verdict" aria-live="polite">
+        <span class="pill" id="pill"></span>
+        <p id="verdict"></p>
+      </section>
+
+      <div class="readings" id="readings"></div>
+
+      <section class="panel figure" aria-labelledby="view-h">
+        <div class="figure-head">
+          <h2 id="view-h">What your eye sees</h2>
+          <label class="shift" for="shift">Glasses slip sideways
+            <input id="shift" type="range" min="-6" max="6" step="0.5" value="0">
+            <output id="shift-out" for="shift">0 mm</output>
+          </label>
+        </div>
+        <canvas id="view" width="900" height="520" aria-label="Simulated view through the glasses"></canvas>
+        <p class="caption">One eye's view, with grid lines every 10°. The dashed box is the screen's edge. Only lit pixels show up; dimmed or missing pixels are blocked by the lens or the splitter.</p>
+      </section>
+
+      <section class="panel figure" aria-labelledby="layout-h">
+        <h2 id="layout-h">Layout from above, to scale</h2>
+        <div class="svg-box"><svg id="layout" role="img" aria-label="Top view of the screen, lens, splitter and eye"></svg></div>
+        <p class="caption">Light leaves the screen, passes the lens, bounces off the splitter into your eye. Dashed lines are the screen's left and right edges.</p>
+      </section>
+
+      <section class="panel" aria-labelledby="compare-h">
+        <h2 id="compare-h">Compare common setups</h2>
+        <div class="table-box">
+          <table>
+            <thead><tr><th>Setup</th><th>Image</th><th>Text at 1 m</th><th>Eye box</th><th>Screen → splitter</th><th>Splitter</th></tr></thead>
+            <tbody id="compare"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="notes">
+        <p><strong>Eye box</strong> is how far the glasses can slide sideways (or up and down) on your face before the edges of the screen start to dim. Under 3 mm feels fussy; 5 mm or more is comfortable.</p>
+        <p><strong>Focus range</strong> is how far the screen can move and still look sharp, from text floating at 0.5 m to text at infinity. The glasses module needs a slot about that long to fine-tune focus.</p>
+        <p>The model uses thin-lens optics and traces rays through the lens and splitter edges. Real lenses blur a little toward the edges, so treat the numbers as a guide and confirm them on the optics bench.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="optics.js"></script>
+<script>
+(function () {
+  "use strict";
+  const O = window.Optics;
+  const $ = (id) => document.getElementById(id);
+
+  const PRESETS = [
+    { name: "Recommended", f: 50, lensD: 25, splitter: "plate", size: 25, plateH: 20 },
+    { name: "Wide and compact", f: 40, lensD: 25, splitter: "plate", size: 25, plateH: 20 },
+    { name: "Comfortable", f: 60, lensD: 30, splitter: "plate", size: 25, plateH: 20 },
+    { name: "15 mm cube", f: 40, lensD: 25, splitter: "cube", size: 15 },
+    { name: "20 mm cube", f: 50, lensD: 25, splitter: "cube", size: 20 },
+  ];
+
+  const state = { f: 50, lensD: 25, splitter: "plate", size: 25, plateH: 20, eyeToSplitter: 20, imageDist: 2000, shift: 0 };
+
+  // ---------- controls ----------
+  const presetBox = $("presets");
+  PRESETS.forEach((p, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = p.name; b.dataset.i = String(i);
+    b.addEventListener("click", () => { Object.assign(state, p, { plateH: p.plateH || state.plateH }); syncControls(); update(); });
+    presetBox.appendChild(b);
+  });
+
+  function syncControls() {
+    $("f").value = state.f; $("lensD").value = state.lensD; $("size").value = state.size;
+    $("plateH").value = state.plateH; $("eye").value = state.eyeToSplitter; $("image").value = String(state.imageDist);
+    $("sp-plate").setAttribute("aria-pressed", String(state.splitter === "plate"));
+    $("sp-cube").setAttribute("aria-pressed", String(state.splitter === "cube"));
+    $("plateH-field").hidden = state.splitter !== "plate";
+    $("size-l").textContent = state.splitter === "plate" ? "Plate width" : "Cube side";
+    $("size-help").textContent = state.splitter === "plate" ? "The side that tilts 45° across the light." : "Glass cubes come in 10, 12.7, 15, 20 and 25 mm.";
+    presetBox.querySelectorAll(".chip").forEach((b) => {
+      const p = PRESETS[+b.dataset.i];
+      const same = p.f === state.f && p.lensD === state.lensD && p.splitter === state.splitter && p.size === state.size &&
+        (p.splitter === "cube" || p.plateH === state.plateH) && state.eyeToSplitter === 20;
+      b.setAttribute("aria-pressed", String(same));
+    });
+  }
+
+  [["f", "f"], ["lensD", "lensD"], ["size", "size"], ["plateH", "plateH"], ["eye", "eyeToSplitter"]].forEach(([id, key]) => {
+    $(id).addEventListener("input", (e) => { state[key] = parseFloat(e.target.value); syncControls(); update(); });
+  });
+  $("image").addEventListener("change", (e) => { state.imageDist = parseFloat(e.target.value); update(); });
+  document.querySelectorAll("[data-splitter]").forEach((b) => b.addEventListener("click", () => {
+    state.splitter = b.dataset.splitter;
+    if (state.splitter === "cube" && state.size > 25) state.size = 20;
+    syncControls(); update();
+  }));
+  $("shift").addEventListener("input", (e) => { state.shift = parseFloat(e.target.value); $("shift-out").textContent = fmtShift(state.shift); drawView(last); });
+
+  const fmt = (x, d = 1) => x.toFixed(d);
+  const fmtShift = (x) => (x === 0 ? "0 mm" : (x > 0 ? "+" : "−") + Math.abs(x).toFixed(1) + " mm");
+
+  // ---------- verdict and readings ----------
+  function grade(r) {
+    const vis = Math.min(r.visibleH, r.visibleV);
+    if (vis < 0.999) return ["bad", "Edges cut off", "Even with your eye centered, part of the screen is blocked. Try a bigger splitter, a bigger lens or a longer focal length."];
+    if (r.eyeboxH < 2) return ["warn", "Very tight", "The whole screen fits, but the edges dim if the glasses move even 1 mm sideways."];
+    if (r.eyeboxH < 4) return ["warn", "Tight", "The whole screen fits. Small shifts of the glasses dim the left or right edge a little."];
+    if (r.fovH > 30) return ["warn", "Very wide", "Everything fits, but the image covers a big part of that eye's view."];
+    return ["good", "Good fit", "The whole screen is visible, with room for the glasses to move a little."];
+  }
+
+  function reading(k, v, h, cls) {
+    return `<div class="reading"><span class="k">${k}</span><span class="v ${cls || ""}">${v}</span>${h ? `<span class="h">${h}</span>` : ""}</div>`;
+  }
+
+  function renderReadings(r) {
+    const [cls, label, text] = grade(r);
+    $("pill").className = "pill " + cls; $("pill").textContent = label; $("verdict").textContent = text;
+    const eyeCls = r.eyeboxH >= 4 ? "good" : r.eyeboxH >= 2 ? "warn" : "bad";
+    const visCls = Math.min(r.visibleH, r.visibleV) >= 0.999 ? "good" : "bad";
+    $("readings").innerHTML = [
+      reading("Screen to lens", fmt(r.screenToLens) + " mm", `sharp from ${fmt(r.focusRange[0])} to ${fmt(r.focusRange[1])} mm`),
+      reading("Image size", `${fmt(r.fovH)}° × ${fmt(r.fovV)}°`, "how much of your view the screen covers"),
+      reading("Text size", fmt(r.textMmAt1m, 0) + " mm", "capitals look this tall on a sign 1 m away"),
+      reading("Eye box", `${fmt(r.eyeboxH)} × ${fmt(r.eyeboxV)} mm`, "sideways × up/down before edges dim", eyeCls),
+      reading("Visible, eye centered", `${Math.round(r.visibleH * 100)}% × ${Math.round(r.visibleV * 100)}%`, "of the screen's width × height", visCls),
+      reading("Screen → splitter", fmt(r.pathLength, 0) + " mm", "length of the light path in the module"),
+      reading("Lens → splitter", fmt(r.setup.lensToSplitter) + " mm", "as close as the parts allow"),
+      reading("Splitter weight", fmt(r.splitterGrams) + " g", r.setup.splitter === "cube" ? "solid glass" : "1 mm glass"),
+    ].join("");
+  }
+
+  // ---------- simulated view ----------
+  const hud = makeHudFrame();
+
+  function makeHudFrame() {
+    // A 128 x 64 one-bit frame like the firmware's notification screen.
+    const c = document.createElement("canvas"); c.width = 128; c.height = 64;
+    const g = c.getContext("2d");
+    g.fillStyle = "#000"; g.fillRect(0, 0, 128, 64);
+    g.fillStyle = "#fff"; g.fillRect(0, 0, 128, 11);
+    g.textBaseline = "alphabetic";
+    g.fillStyle = "#000"; g.font = "bold 9px Arial, sans-serif"; g.fillText("Messages", 2, 9);
+    g.font = "9px Arial, sans-serif"; g.fillText("9:41", 106, 9);
+    g.fillStyle = "#fff"; g.font = "bold 9px Arial, sans-serif"; g.fillText("Mom", 2, 21);
+    g.font = "9px Arial, sans-serif";
+    ["Are you coming home for", "dinner? I made", "enchiladas"].forEach((t, i) => g.fillText(t, 2, 31 + i * 10));
+    const data = g.getImageData(0, 0, 128, 64).data;
+    const lit = new Uint8Array(128 * 64);
+    for (let i = 0; i < lit.length; i++) lit[i] = data[i * 4] > 110 ? 1 : 0;
+    return lit;
+  }
+
+  function drawView(r) {
+    if (!r) return;
+    const cv = $("view");
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = cv.clientWidth || 900;
+    const h = Math.round(w * 0.56);
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    cv.style.height = h + "px";
+    const g = cv.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // A dim room as the world behind the display.
+    const sky = g.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, "#36424a"); sky.addColorStop(0.55, "#4a565c"); sky.addColorStop(0.56, "#2c2620"); sky.addColorStop(1, "#1d1915");
+    g.fillStyle = sky; g.fillRect(0, 0, w, h);
+
+    const halfDeg = 32;               // the view spans -32..+32 degrees across
+    const pxPerDeg = w / (2 * halfDeg);
+    const cx = w / 2, cy = h / 2;
+    g.strokeStyle = "rgba(255,255,255,0.10)"; g.lineWidth = 1;
+    g.fillStyle = "rgba(255,255,255,0.45)"; g.font = "11px ui-monospace, monospace";
+    for (let d = -30; d <= 30; d += 10) {
+      const x = cx + d * pxPerDeg;
+      g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke();
+      if (d !== 0) g.fillText(d + "°", x + 3, h - 6);
+    }
+    for (let d = -10; d <= 10; d += 10) {
+      const y = cy - d * pxPerDeg;
+      g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke();
+    }
+
+    const toX = (slope) => cx + (Math.atan(slope) * 180 / Math.PI) * pxPerDeg;
+    const toY = (slope) => cy - (Math.atan(slope) * 180 / Math.PI) * pxPerDeg;
+    const s = r.setup;
+    const colB = new Float32Array(128), rowB = new Float32Array(64);
+    const colX = new Float32Array(129), rowY = new Float32Array(65);
+    for (let c = 0; c <= 128; c++) colX[c] = toX(((c - 64) / 64) * r.slopeH);
+    for (let y = 0; y <= 64; y++) rowY[y] = toY(((32 - y) / 32) * r.slopeV);
+    for (let c = 0; c < 128; c++) colB[c] = O.brightness(s, state.shift, ((c + 0.5 - 64) / 64) * r.slopeH, true, r.lensZ);
+    for (let y = 0; y < 64; y++) rowB[y] = O.brightness(s, 0, ((32 - y - 0.5) / 32) * r.slopeV, false, r.lensZ);
+
+    g.save();
+    g.shadowColor = "rgba(190,230,255,0.7)"; g.shadowBlur = 4;
+    for (let y = 0; y < 64; y++) {
+      for (let c = 0; c < 128; c++) {
+        if (!hud[y * 128 + c]) continue;
+        const a = colB[c] * rowB[y];
+        if (a <= 0.02) continue;
+        g.fillStyle = `rgba(236,246,255,${a})`;
+        g.fillRect(colX[c], rowY[y], Math.max(1, colX[c + 1] - colX[c] - 0.3), Math.max(1, rowY[y + 1] - rowY[y] - 0.3));
+      }
+    }
+    g.restore();
+
+    g.setLineDash([5, 4]); g.strokeStyle = "rgba(255,255,255,0.45)";
+    g.strokeRect(colX[0], rowY[0], colX[128] - colX[0], rowY[64] - rowY[0]);
+    g.setLineDash([]);
+  }
+
+  // ---------- layout drawing ----------
+  function drawLayout(r) {
+    const s = r.setup;
+    const E = s.eyeToSplitter, L = s.lensToSplitter, S = r.screenToLens;
+    const half = O.SCREEN_W / 2;
+    // Unfolded path (z from the eye, lateral y) -> top view (x right, y down, splitter at 0,0).
+    const fold = (z, y) => {
+      const zHit = E + y;  // the 45 degree mirror line
+      return z <= zHit ? [y, E - z] : [z - E, -y];
+    };
+    const minX = -30, maxX = L + S + 16, minY = -38, maxY = E + 28;
+    const vb = [minX, minY, maxX - minX, maxY - minY];
+    // Drawing units are millimeters; size the labels to about 12 px on screen.
+    const svg = $("layout");
+    const pxWidth = Math.max(svg.parentElement.clientWidth || 600, 320);
+    const fs = 12 * (vb[2] / pxWidth);
+    const el = [];
+    const line = (a, b, cls, extra) => el.push(`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" class="${cls}" ${extra || ""}/>`);
+    const poly = (pts, cls) => el.push(`<polyline points="${pts.map((p) => p.join(",")).join(" ")}" class="${cls}" vector-effect="non-scaling-stroke"/>`);
+    const text = (x, y, t, cls, anchor) => el.push(`<text x="${x}" y="${y}" class="${cls || ""}" text-anchor="${anchor || "middle"}" font-size="${fs}">${t}</text>`);
+
+    // Rays: center and the two side edges of the screen, traced from the pupil.
+    [-1, 0, 1].forEach((k) => {
+      const t = k * r.slopeH;
+      const zHit = E / (1 - t);
+      const yHit = zHit * t;
+      const zLens = E + L, yLens = zLens * t;
+      const pts = [fold(0, 0), fold(zHit, yHit), fold(zLens, yLens), fold(zLens + S, k * half)];
+      poly(pts, k === 0 ? "ray" : "ray edge");
+    });
+
+    // "Straight ahead" arrow and eye.
+    const tip = -20, head = Math.min(2.5, fs * 0.7);
+    line([0, -8], [0, tip], "dim", 'vector-effect="non-scaling-stroke"');
+    el.push(`<polygon points="0,${tip - head} ${-head * 0.6},${tip} ${head * 0.6},${tip}" fill="currentColor" style="color:var(--muted)"/>`);
+    text(-2.5, tip + 3, "world", "label", "end");
+    el.push(`<circle cx="0" cy="${E + 12}" r="12" class="part" vector-effect="non-scaling-stroke"/>`);
+    el.push(`<circle cx="0" cy="${E}" r="${s.pupil / 2}" fill="currentColor" style="color:var(--ink)"/>`);
+    text(16, E + 14, "eye", "label", "start");
+
+    // Splitter.
+    if (s.splitter === "cube") {
+      const c = s.size / 2;
+      el.push(`<rect x="${-c}" y="${-c}" width="${2 * c}" height="${2 * c}" class="glass" vector-effect="non-scaling-stroke"/>`);
+      line([-c, c], [c, -c], "mirror", 'vector-effect="non-scaling-stroke"');
+    } else {
+      const a = s.size / (2 * Math.SQRT2);
+      line([-a, a], [a, -a], "mirror", 'vector-effect="non-scaling-stroke"');
+    }
+
+    // Lens (drawn as a thin biconvex outline) and screen.
+    const R = s.lensD / 2;
+    el.push(`<ellipse cx="${L}" cy="0" rx="2.2" ry="${R}" class="glass" vector-effect="non-scaling-stroke"/>`);
+    text(L, R + 7, "lens", "label");
+    const sx = L + S;
+    el.push(`<rect x="${sx}" y="${-13.35}" width="3.2" height="26.7" class="part" vector-effect="non-scaling-stroke"/>`);
+    line([sx, -half], [sx, half], "active", 'vector-effect="non-scaling-stroke"');
+    text(sx + 1.6, 20, "screen", "label");
+
+    // Dimensions.
+    const dy = -29;
+    line([0, dy], [L, dy], "dim", 'vector-effect="non-scaling-stroke"');
+    line([L, dy], [sx, dy], "dim", 'vector-effect="non-scaling-stroke"');
+    [0, L, sx].forEach((x) => line([x, dy - 2], [x, dy + 2], "dim", 'vector-effect="non-scaling-stroke"'));
+    text(L / 2, dy - 3, fmt(L) + " mm");
+    text(L + S / 2, dy - 3, fmt(S) + " mm");
+    const dx = -18;
+    line([dx, 0], [dx, E], "dim", 'vector-effect="non-scaling-stroke"');
+    [0, E].forEach((y) => line([dx - 2, y], [dx + 2, y], "dim", 'vector-effect="non-scaling-stroke"'));
+    el.push(`<text x="${dx - 1.5}" y="${E / 2}" text-anchor="middle" font-size="${fs}" transform="rotate(-90 ${dx - 1.5} ${E / 2})">${fmt(E)} mm</text>`);
+
+    svg.setAttribute("viewBox", vb.join(" "));
+    svg.innerHTML = el.join("");
+  }
+
+  // ---------- comparison table ----------
+  function renderCompare() {
+    $("compare").innerHTML = PRESETS.map((p, i) => {
+      const r = O.analyze(Object.assign({ eyeToSplitter: 20, imageDist: 2000 }, p));
+      const sp = p.splitter === "cube" ? `${p.size} mm cube` : `${p.size} × ${p.plateH} plate`;
+      return `<tr data-i="${i}"><td><strong>${p.name}</strong><br><span class="spec">f ${p.f} · ${p.lensD} mm lens · ${sp}</span></td>
+        <td class="num">${fmt(r.fovH, 0)}° × ${fmt(r.fovV, 0)}°</td><td class="num">${fmt(r.textMmAt1m, 0)} mm</td>
+        <td class="num">${fmt(r.eyeboxH)} × ${fmt(r.eyeboxV)} mm</td><td class="num">${fmt(r.pathLength, 0)} mm</td>
+        <td class="num">${fmt(r.splitterGrams)} g</td></tr>`;
+    }).join("");
+    $("compare").querySelectorAll("tr").forEach((tr) => tr.addEventListener("click", () => {
+      Object.assign(state, PRESETS[+tr.dataset.i], { eyeToSplitter: 20 });
+      syncControls(); update(); window.scrollTo({ top: 0, behavior: "smooth" });
+    }));
+  }
+
+  // ---------- main ----------
+  let last = null;
+  function update() {
+    $("f-out").textContent = state.f + " mm";
+    $("lensD-out").textContent = state.lensD + " mm";
+    $("size-out").textContent = state.size + " mm";
+    $("plateH-out").textContent = state.plateH + " mm";
+    $("eye-out").textContent = state.eyeToSplitter + " mm";
+    last = O.analyze({
+      f: state.f, lensD: state.lensD, splitter: state.splitter, size: state.size, plateH: state.plateH,
+      eyeToSplitter: state.eyeToSplitter, imageDist: state.imageDist,
+    });
+    renderReadings(last);
+    drawView(last);
+    drawLayout(last);
+  }
+
+  window.addEventListener("resize", () => { drawView(last); if (last) drawLayout(last); });
+  syncControls();
+  renderCompare();
+  update();
+})();
+</script>
