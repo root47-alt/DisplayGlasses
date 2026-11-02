@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "author": "DisplayGlasses",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-s3-devkitc-1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "board-ssd1306", "id": "oled", "top": -90, "left": 170, "attrs": { "i2cAddress": "0x3c" } },
+    { "type": "wokwi-pushbutton", "id": "btn", "top": 150, "left": 190, "attrs": { "color": "blue" } }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "oled:GND", "esp:GND.1", "black", [] ],
+    [ "oled:VCC", "esp:3V3.1", "red", [] ],
+    [ "oled:SDA", "esp:8", "blue", [] ],
+    [ "oled:SCL", "esp:9", "green", [] ],
+    [ "btn:1.l", "esp:4", "orange", [] ],
+    [ "btn:2.l", "esp:GND.2", "black", [] ]
+  ],
+  "dependencies": {}
+}
