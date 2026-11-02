@@ -15,8 +15,8 @@
 
   function makeSetup(p) {
     const s = Object.assign({
-      f: 50, lensD: 25, splitter: "plate", size: 25, plateH: 20, plateT: 1,
-      eyeToSplitter: 20, lensToSplitter: null, imageDist: 2000, pupil: 4,
+      f: 60, lensD: 30, splitter: "plate", size: 25, plateH: 25, plateT: 1,
+      eyeToSplitter: 25, lensToSplitter: null, imageDist: 2000, pupil: 4,
     }, p || {});
     if (s.lensToSplitter == null) s.lensToSplitter = splitterDepth(s) / 2 + 4;
     return s;

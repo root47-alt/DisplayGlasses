@@ -45,7 +45,7 @@ Drawn by the real firmware code in the [screen simulator](tools/hudsim/README.md
 
 ## Hardware (no soldering)
 
-An Adafruit ESP32 Feather (Bluetooth, battery charger), a 0.96" 128×64 OLED that plugs in with a cable, a small LiPo battery, a 50 mm lens and a thin beam splitter, all held by 3D-printed parts. Full list with links and prices: [docs/parts-list.md](docs/parts-list.md).
+An Adafruit ESP32 Feather (Bluetooth, battery charger), a 0.96" 128×64 OLED that plugs in with a cable, a small LiPo battery, a 30 mm lens and a thin beam splitter, all held by 3D-printed parts. Full list with links and prices: [docs/parts-list.md](docs/parts-list.md).
 
 ## Tools
 

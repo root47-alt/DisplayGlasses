@@ -27,7 +27,7 @@ All files in [`stl/`](stl) are already lying the right way for printing. **No su
 | `fit_test.stl` | **Print first.** A short rail and a bare holder base to check the sliding fit (see below) |
 | `rail.stl` | 150 mm long, fits a 180 mm bed |
 | `oled_holder.stl` | For the Adafruit 0.96" OLED (29.2 × 26.7 mm board) |
-| `lens_holder_25mm.stl` | Pick the one that matches your lens diameter: 20, 25, 30 or 34 mm. Print one per lens you want to try |
+| `lens_holder_30mm.stl` | For the recommended 30 mm lens. Holders for 20, 25 and 34 mm lenses are there too; print one per lens you want to try |
 | `plate_holder.stl` | Holds a flat splitter at 45°: the recommended 25 mm round plate, a microscope slide or clear plastic (up to 1.2 mm thick) |
 | `cube_holder_15mm.stl` | Only if you have a 15 mm beam splitter cube. Print it in black if you can: its back wall soaks up stray light |
 

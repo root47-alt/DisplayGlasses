@@ -17,12 +17,12 @@ Adafruit parts are also sold by DigiKey, Mouser and Adafruit's local distributor
 
 ## Optics
 
-The [optics calculator](../tools/optics/README.md) picked these. A **50 mm focal-length lens with a thin flat beam splitter** shows the whole screen at a comfortable size. The 15 mm cube on the first version of this list turned out to be too small: the edges of the screen always look dim through it. See [docs/optics.md](optics.md#what-the-calculator-says).
+The [optics calculator](../tools/optics/README.md) picked these. A **30 mm lens with a 60 mm focal length and a thin flat beam splitter** shows the whole screen at a comfortable size, with the splitter far enough out to clear your eyelashes. The 15 mm cube on the first version of this list turned out to be too small: the edges of the screen always look dim through it. See [docs/optics.md](optics.md#what-the-calculator-says).
 
 | Part | Why | Price |
 |---|---|---|
-| **Lens:** plano-convex, **25 mm diameter, 50 mm focal length**, glass. For example [Eisco Labs PH0532ACV](https://www.eiscolabs.com/products/ph0532acv) (sold through Amazon and science-supply stores) or [Shalom EO 1101-078](https://www.shalomeo.com/Optics/Optical-Lens/BK7-lambda4-Plano-convex-Lens/D25.0mm-F50mm-Uncoated-1101-078) | Makes the screen look like a 55-inch TV seen from about 2.7 m. Put the flat side toward the screen | ≈ $8–20 |
-| *Optional second lens:* 30 mm diameter, 60 mm focal length | Bigger eye box (the glasses can shift more before the edges dim), but the module gets longer. Nice to compare on the bench | ≈ $8–20 |
+| **Lens:** plano-convex, **30 mm diameter, 60 mm focal length**, glass. Search for "plano convex lens 30mm 60mm focal length"; science-supply and optics shops sell them | Makes the screen look like a 55-inch TV seen from about 3.3 m. Put the flat side toward the screen | ≈ $8–20 |
+| *Optional second lens:* 25 mm diameter, 50 mm focal length, e.g. [Eisco Labs PH0532ACV](https://www.eiscolabs.com/products/ph0532acv) or [Shalom EO 1101-078](https://www.shalomeo.com/Optics/Optical-Lens/BK7-lambda4-Plano-convex-Lens/D25.0mm-F50mm-Uncoated-1101-078) | Bigger text and a shorter module, but your eye has to stay almost exactly centered. Nice to compare on the bench | ≈ $8–20 |
 | **Beam splitter:** [Knight Optical BAE2511](https://www.knightoptical.com/stock/plate-beamsplitter-standard-range-50-50-visible-420-680nm-25mmdia-x-1-1mmthk-bae2511), 25 mm round, 1 mm thick, 50/50, anti-reflection coated back | Bounces the screen into your eye while you see through it. Weighs about 1 g. The coated back stops a faint double image | $39.34 (in stock) |
 
 **Cheaper ways to start:**

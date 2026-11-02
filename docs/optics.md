@@ -20,22 +20,27 @@ This is a top view of your right eye, looking up the page. The display sits out 
 
 ## What the calculator says
 
-The [optics calculator](../tools/optics/README.md) models the screen, lens and splitter before you buy anything. With the eye 20 mm from the splitter (where a glasses lens would be):
+The [optics calculator](../tools/optics/README.md) models the screen, lens and splitter before you buy anything.
 
-| Setup | Image size | Eye box (sideways) | Verdict |
+**Your eyelashes set the first limit.** The splitter is tilted 45°, so its near edge comes about 9 mm closer to you than its center. Its center has to sit about 25 mm in front of your pupil, or that edge brushes your eyelashes. That's a little farther than a normal glasses lens, and it makes the image harder to keep in view, so the lens has to be bigger.
+
+With the splitter's center 25 mm from the pupil:
+
+| Setup | Image size | Eye box (sideways × up/down) | Verdict |
 |---|---|---|---|
-| 40 mm lens + 15 mm cube | 31° × 16° | 0 mm | Edges always a bit dim; image very wide |
-| **50 mm lens (25 mm wide) + 25 × 20 mm plate** | **25° × 12.5°** | **2.8 mm** | **Good balance. Recommended** |
-| 50 mm lens + 20 mm cube | 25° × 13° | 5.9 mm | Works, but the cube weighs 20 g |
-| 60 mm lens (30 mm wide) + 25 × 20 mm plate | 21° × 10° | 6.3 mm | Most forgiving, longest module |
+| 40 mm lens + 15 mm cube | 31° × 16° | 0 × 3.5 mm | Edges always dim; image very wide |
+| 50 mm lens, 25 mm wide + 25 mm plate | 25° × 12.5° | 0.7 × 10.8 mm | Too fussy: shift 1 mm and an edge dims |
+| 50 mm lens, 30 mm wide + 20 mm cube | 25° × 12.5° | 3.7 × 9.8 mm | Works, but the cube weighs 20 g |
+| **60 mm lens, 30 mm wide + 25 mm plate** | **21° × 10.5°** | **4.5 × 16.5 mm** | **Recommended** |
+| 60 mm lens, 30 mm wide + 30 × 22 mm plate | 21° × 10.5° | 6.9 × 13.5 mm | Roomiest |
 
 What that means:
 
-- **Use a lens with a focal length of about 50 mm.** The screen then looks like a 55-inch TV seen from about 2.7 m, and capital letters look about 24 mm tall on a sign 1 m away. That's easy to read. Shorter focal lengths make the image so wide it crowds that eye's view.
-- **Use a thin flat beam splitter, not the 15 mm cube.** A 25 × 20 mm plate weighs about 1 g and shows the whole screen. A 15 mm cube is too small: the left and right edges always look dim.
-- **The screen sits about 49 mm from the lens**, and it stays sharp anywhere from 45 to 50 mm (text floating from 0.5 m out to infinity). The glasses module needs a focus slot about 5 mm long.
-- **The light path from screen to splitter is about 62 mm.** That's longer than the space beside your eye, so in the glasses the path runs back along the arm and a small mirror turns it toward the splitter.
-- **The eye box is small (about 3 mm sideways).** The glasses need to sit in the same place on your face every time, so a snug fit matters. A 30 mm lens with a 60 mm focal length roughly doubles it.
+- **Use a lens 30 mm wide with a 60 mm focal length.** The screen looks like a 55-inch TV seen from about 3.3 m, and capital letters look about 20 mm tall on a sign 1 m away. That's still easy to read.
+- **Use a thin flat beam splitter, not the 15 mm cube.** A 25 mm plate weighs under 2 g and shows the whole screen. A 15 mm cube is too small: the left and right edges always look dim.
+- **The screen sits about 58 mm from the lens**, and it stays sharp anywhere from 53 to 60 mm (text floating from 0.5 m out to infinity). The glasses module needs a focus slot about 7 mm long.
+- **The light path from screen to splitter is about 71 mm.** That's longer than the space beside your eye, so the module sticks out past the side of your head, or folds the light with small mirrors. See [cad/README.md](../cad/README.md).
+- **The eye box is about 4.5 mm sideways.** The glasses need to sit in the same place on your face every time, so a snug fit matters. A 30 × 22 mm plate stretches that to about 7 mm.
 
 ## Test it on the optics bench (about 30 minutes)
 

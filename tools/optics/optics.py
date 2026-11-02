@@ -39,13 +39,15 @@ LENS_RIM = 1.0         # the holder covers this much of the lens edge
 
 @dataclass
 class Setup:
-    f: float = 50.0                 # lens focal length
-    lens_d: float = 25.0            # lens diameter
+    f: float = 60.0                 # lens focal length
+    lens_d: float = 30.0            # lens diameter
     splitter: str = "plate"         # "cube" or "plate"
     size: float = 25.0              # cube side, or plate width along its 45 degree tilt
-    plate_h: float = 20.0           # plate height (plates only)
+    plate_h: float = 25.0           # plate height (plates only)
     plate_t: float = 1.0            # plate thickness (plates only)
-    eye_to_splitter: float = 20.0   # eye to the splitter's center
+    # Eye (pupil) to the splitter's center. 25 mm keeps the near edge of a
+    # 25 mm plate about 13 mm from the eye's surface, clear of eyelashes.
+    eye_to_splitter: float = 25.0
     lens_to_splitter: float | None = None  # lens to splitter center; None = as close as fits
     image_dist: float = 2000.0      # where the text should appear to float, from the eye
     pupil: float = PUPIL
@@ -242,7 +244,7 @@ def sweep() -> str:
         for f in (30.0, 40.0, 50.0, 60.0):
             for d in (20.0, 25.0, 30.0):
                 r = analyze(Setup(f=f, lens_d=d, splitter=splitter, size=size))
-                kind = f"{size:g} mm cube" if splitter == "cube" else f"{size:g}x20 mm plate"
+                kind = f"{size:g} mm cube" if splitter == "cube" else f"{size:g} mm plate"
                 rows.append((kind, f, d, r))
     out = ["| Splitter | Lens f | Lens width | Image size | Text at 1 m | Eye box (side × up) | Visible | Screen→splitter |",
            "|---|---|---|---|---|---|---|---|"]
@@ -256,12 +258,12 @@ def sweep() -> str:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--f", type=float, default=50.0, help="lens focal length (mm)")
-    p.add_argument("--lens", type=float, default=25.0, help="lens diameter (mm)")
+    p.add_argument("--f", type=float, default=60.0, help="lens focal length (mm)")
+    p.add_argument("--lens", type=float, default=30.0, help="lens diameter (mm)")
     p.add_argument("--splitter", choices=["cube", "plate"], default="plate")
     p.add_argument("--size", type=float, default=None, help="cube side, or plate width (mm)")
-    p.add_argument("--plate-h", type=float, default=20.0, help="plate height (mm)")
-    p.add_argument("--eye", type=float, default=20.0, help="eye to splitter center (mm)")
+    p.add_argument("--plate-h", type=float, default=25.0, help="plate height (mm)")
+    p.add_argument("--eye", type=float, default=25.0, help="eye (pupil) to splitter center (mm)")
     p.add_argument("--lens-gap", type=float, default=None, help="lens to splitter center (mm)")
     p.add_argument("--image", type=float, default=2.0, help="where the text should float (meters)")
     p.add_argument("--sweep", action="store_true", help="print a comparison table instead")
