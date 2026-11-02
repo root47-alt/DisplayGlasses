@@ -18,20 +18,21 @@ Your eye can't focus on anything closer than about 10 cm. A convex lens placed s
 
 This is a top view of your right eye, looking up the page. The display sits out by your temple, facing your nose. The splitter in front of your eye turns its light 90° into your eye, and you still see the world through the splitter.
 
-## Test it on the desk (about 30 minutes)
+## Test it on the optics bench (about 30 minutes)
 
-You need the OLED running the `feather_demo` firmware, one lens, the beam splitter, cardboard, and tape or Blu-Tack.
+Print the bench first ([cad/README.md](../cad/README.md)) and put the screen, lens and cube in their holders. The OLED should be running the `feather_demo` firmware. No printer handy? Cardboard and Blu-Tack work too; you'll just measure the distances with a ruler.
 
-1. **Focus.** In a dim room, look through the lens at the OLED. Start with the screen right against the lens and slowly move the lens away. Stop when the text looks sharp while your eyes are relaxed, as if looking across the room. The screen-to-lens distance should end up a little shorter than the lens's focal length.
-2. **Fold it.** Turn the screen and lens sideways and put the beam splitter in front of your eye, angled 45°, so the light coming out of the lens turns 90° into your eye. Look straight ahead through the splitter. The text should float over the room.
-3. **Fix the mirror image.** If the text reads backwards, hold the button for 1–2 seconds and let go. That cycles the mirror modes (none → left-right → up-down → rotate 180). The choice is saved.
-4. **Measure and write down:**
-   - screen-to-lens distance
-   - lens-to-splitter distance
-   - the lens diameter and the splitter cube size
-   - which lens you used, and the mirror mode that reads correctly
+1. **Raise the bench to eye level** by setting it on a box or a stack of books, so you can look into the cube from the front without bending down.
+2. **Look into the cube** from the scale side of the bench, past it toward the room. The screen's light should be visible in the cube. If you see nothing, give the cube a quarter turn, or set it down on a different face, until the light comes out toward you. The mirror plane inside the cube is a diagonal, and it has to stand upright and face you.
+3. **Focus.** Slide the lens holder (or the screen holder) slowly along the rail. Stop when the text looks sharp while your eyes are relaxed, as if you were looking across the room. Then glance at something far away and back: the text should stay sharp without your eyes refocusing.
+4. **Fix the mirror image.** If the text reads backwards, hold the button for 1–2 seconds and let go. That cycles the mirror modes (none → left-right → up-down → rotate 180). The choice is saved.
+5. **Check that you can see the whole screen.** Slide the cube holder right up to the lens holder and put your eye about 15 mm from the cube, which is about where it will sit in the glasses. The closer the lens is to your eye, the more of the screen you see. If the edges of the text are still cut off, try a bigger lens or one with a longer focal length.
+6. **Read the pointers and write down:**
+   - screen-to-lens distance = lens pointer − screen pointer
+   - lens-to-cube distance = cube pointer − lens pointer
+   - which lens you used (diameter and focal length) and the mirror mode that reads correctly
 
-Try each lens: a longer focal length gives smaller, easier-to-read text but makes the module stick out farther.
+Repeat for each lens you bought. A longer focal length gives smaller text that's easier on your eyes, but makes the module stick out farther. The screen-to-lens distance should come out a little shorter than the lens's focal length.
 
 ## Tips
 

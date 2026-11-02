@@ -46,7 +46,7 @@ firmware/   ESP32 code (C++, PlatformIO): screen, button, iPhone Bluetooth link
   lib/core/   pure logic with unit tests (text wrapping, clock, notification protocol)
   src/        hardware code
 docs/       parts list, iPhone setup, optics guide
-cad/        3D-printable parts (coming after the optics test)
+cad/        3D-printable parts (OpenSCAD source and ready-to-print STLs)
 ```
 
 ## Getting started
@@ -54,16 +54,17 @@ cad/        3D-printable parts (coming after the optics test)
 1. **Order the parts:** [docs/parts-list.md](docs/parts-list.md)
 2. **See it before the parts arrive:** run the demo in the Wokwi simulator ([firmware/README.md](firmware/README.md#try-it-in-the-simulator))
 3. **Flash the board and pair your iPhone:** [firmware/README.md](firmware/README.md) and [docs/iphone-setup.md](docs/iphone-setup.md)
-4. **Find the optics distances:** [docs/optics.md](docs/optics.md)
-5. **Print the module and put it on the glasses:** [cad/README.md](cad/README.md)
+4. **Print the optics bench and find the distances:** [cad/README.md](cad/README.md) and [docs/optics.md](docs/optics.md)
+5. **Print the module and put it on the glasses** (designed once the distances are known)
 
 ## Status
 
 - [x] Firmware: home screen, notification pop-ups with auto-scroll, mirror modes, demo mode
 - [x] iPhone link: pairing, notifications, phone time
 - [x] Unit tests for the core logic (`pio test -e native`)
+- [x] Optics bench: printable rail with a scale and holders for the screen, lens and beam splitter
 - [ ] Tested on real hardware (waiting on parts)
-- [ ] Optics test, then 3D-printed module
+- [ ] Optics test on the bench, then the 3D-printed glasses module
 - [ ] Battery life: sleep the screen and radio when idle
 - [ ] Battery level on the home screen
 
