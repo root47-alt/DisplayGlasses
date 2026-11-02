@@ -56,18 +56,48 @@ Then follow the steps in [docs/optics.md](../docs/optics.md).
 
 Open `optics_bench.scad` in OpenSCAD and show **Window → Customizer**. Enter your measurements (screen board size, lens diameter, cube size, flat splitter thickness), pick a part, press **F6**, then **File → Export → Export as STL**. The `assembly` part is a preview of everything together.
 
-## Next: the glasses module
+## Glasses (draft v1)
 
-Once the optics test gives you the distances, the next parts are:
+![Glasses draft on a head outline](images/glasses.png)
 
-1. **Display module:** a pod for one side of the glasses that holds the screen, lens and beam splitter at your measured distances, with a slot to fine-tune focus.
-2. **Battery pod:** holds the Feather and the battery on the arm behind your ear, balancing the weight of the front.
-3. **Later:** a fully printed frame with the module built in.
+`glasses.scad` is a first full design: a printed frame with the display module in place of the right lens, and a battery pod on the right temple. It's sized from the optics calculator (30 mm lens with a 60 mm focal length, 25 mm plate splitter 25 mm in front of your pupil). **Treat it as a draft:** run the optics bench first, put your numbers and face measurements into the Customizer, then print.
 
-To design them, these measurements are needed:
+![Every glasses part as it prints](images/glasses_parts.png)
 
-- The numbers from the optics test, and which lens you used
-- The glasses arm where the module clips on: its width and thickness
-- Anything that doesn't match the defaults above (board size, cube size)
+### What it's like
 
-The battery pod will be sized for the parts list: the Adafruit Feather (50.8 × 22.8 mm) and the 400 mAh battery (36 × 17 × 7.8 mm).
+- The light path stays straight: screen → lens → splitter → eye. The path is about 71 mm, so the module sticks out about 45 mm past the side of your head, Google Glass style.
+- Everything together weighs roughly 80 g, about three times a normal pair of glasses. Fine for testing, too heavy for all day.
+- A slimmer v2 would fold the light with small mirrors and use the bare OLED panel without its circuit board. That's worth doing once v1 proves the optics.
+
+### Parts
+
+All files are in [`stl/glasses/`](stl/glasses), already lying the right way to print. No supports needed.
+
+| File | Notes |
+|---|---|
+| `frame.stl` | Left rim, bridge, and the brow bar that bolts onto the module |
+| `temple.stl` | Print two. It's 181 mm long, so on a 180 mm bed, turn it diagonally |
+| `module_lower.stl`, `module_upper.stl` | The display module's two halves. The top half prints upside down |
+| `lens_ring.stl` | Holds the 30 mm lens with three grip ribs |
+| `screen_sled.stl` | Holds the OLED and slides inside the module for focus |
+| `pod_body.stl`, `pod_lid.stl` | Feather + battery case that slides onto the right temple |
+
+You also need two M2 × 8 screws (brow bar to module), and two M2 × 10 screws or 2 mm pins (temples).
+
+### Measure first
+
+In the Customizer, set:
+- **Your face:** pupil distance (an optician or a phone app can measure it), frame width, temple length
+- **Optics:** the screen-to-lens and lens-to-splitter distances from the bench, and your lens's diameter and thickness
+
+### Put it together
+
+1. **Lens:** press it into the lens ring from the open side, flat side last (the flat side faces the screen). Set the ring between the two ribs in the bottom half.
+2. **Splitter:** stand the plate's lower edge in the groove of the bottom half's angled bracket.
+3. **Screen:** press the OLED onto the sled's corner posts, face toward the lens. Run the cable out through the sled's window and the slot in the end wall. Set the sled in the far end.
+4. **Close:** put the top half on, so the plate's upper edge goes into its groove. For testing, hold the halves together with tape or two small rubber bands; glue them once everything is right.
+5. **Frame:** screw the brow bar onto the module through its two slots. Slide it until the splitter sits right in front of your pupil, then tighten.
+6. **Temples:** slide each temple's tongue into its socket and push a pin or screw through the hole.
+7. **Pod:** put the battery in, the Feather on top, and slide the lid in. Slide the pod onto the right temple from the back.
+8. **Focus:** with the demo firmware running, slide the tab on top of the module until the text is sharp.

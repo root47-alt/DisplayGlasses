@@ -71,7 +71,7 @@ web/        the project website: browser flasher and home page
 2. **See it before the parts arrive:** the [screens](docs/images/screens/overview.png), or run the demo in the Wokwi simulator ([firmware/README.md](firmware/README.md#try-it-in-the-simulator))
 3. **Flash the board and pair your iPhone:** [firmware/README.md](firmware/README.md) and [docs/iphone-setup.md](docs/iphone-setup.md)
 4. **Print the optics bench and find the distances:** [cad/README.md](cad/README.md) and [docs/optics.md](docs/optics.md)
-5. **Print the module and put it on the glasses** (designed once the distances are known)
+5. **Print the glasses:** put your measurements into the draft design and print it ([cad/README.md](cad/README.md#glasses-draft-v1))
 
 ## Status
 
@@ -82,7 +82,8 @@ web/        the project website: browser flasher and home page
 - [x] Optics calculator, browser flasher, automatic builds on GitHub
 - [x] Optics bench: printable rail with a scale and holders for the screen, lens and beam splitter
 - [ ] Tested on real hardware (waiting on parts)
-- [ ] Optics test on the bench, then the 3D-printed glasses module
+- [x] Glasses draft: printable frame, display module and battery pod ([cad/README.md](cad/README.md#glasses-draft-v1))
+- [ ] Optics test on the bench, then tune and print the glasses
 - [ ] Battery life: sleep the screen and radio when idle
 - [ ] Battery level on the home screen
 
