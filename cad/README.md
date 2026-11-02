@@ -14,7 +14,7 @@ The yellow line is the light: from the screen, through the lens, into the beam s
 |---|---|
 | Screen holder | the screen's surface |
 | Lens holder | the middle of the lens |
-| Cube holder | the center of the cube, where the light turns |
+| Splitter holder (plate or cube) | the center of the splitter, where the light turns |
 
 ### What to print
 
@@ -28,8 +28,8 @@ All files in [`stl/`](stl) are already lying the right way for printing. **No su
 | `rail.stl` | 150 mm long, fits a 180 mm bed |
 | `oled_holder.stl` | For the Adafruit 0.96" OLED (29.2 × 26.7 mm board) |
 | `lens_holder_25mm.stl` | Pick the one that matches your lens diameter: 20, 25, 30 or 34 mm. Print one per lens you want to try |
-| `cube_holder_15mm.stl` | For a 15 mm beam splitter cube. Print it in black if you can: its back wall soaks up stray light |
-| `plate_holder.stl` | Optional: holds a microscope slide or clear plastic at 45° as a stand-in splitter |
+| `plate_holder.stl` | Holds a flat splitter at 45°: the recommended 25 mm round plate, a microscope slide or clear plastic (up to 1.2 mm thick) |
+| `cube_holder_15mm.stl` | Only if you have a 15 mm beam splitter cube. Print it in black if you can: its back wall soaks up stray light |
 
 **Settings:** PLA or PETG, 0.2 mm layers (0.16 mm makes the scale numbers crisper), 3 walls, 15–20% infill. All the parts together use roughly 50 g of filament.
 
@@ -45,10 +45,10 @@ Print `fit_test.stl` and slide the small block onto the short rail; the ends of 
 
 ### Put it together
 
-1. Slide the screen holder, lens holder and cube holder onto the rail in that order, pointers on the side with the scale.
+1. Slide the screen holder, lens holder and splitter holder onto the rail in that order, pointers on the side with the scale.
 2. **Screen:** press the OLED into its holder face out. The small lips on the side brackets click over the board's edges. The cable leaves through the open side.
 3. **Lens:** press it into the holder from the side with the wide opening; three thin ribs grip it. If one side of the lens is flat, put the flat side toward the screen.
-4. **Cube:** set it on its little table and turn it until the screen's light comes out of the face toward the scale side, where your eye goes.
+4. **Splitter:** stand the plate in its slot. (A cube sits on its little table; turn it until the screen's light comes out toward the scale side, where your eye goes.)
 
 Then follow the steps in [docs/optics.md](../docs/optics.md).
 
