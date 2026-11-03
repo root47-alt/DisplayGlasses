@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "ancs.h"
+#include "charge.h"
 #include "clock.h"
 #include "notice.h"
 #include "press.h"
@@ -317,6 +318,79 @@ void test_press_works_across_the_millis_wrap() {
   assertEvents({Event::Off}, hold(t, start + 3000, start + 3200, false));
 }
 
+// ---------- battery ----------
+
+void test_percent_from_voltage() {
+  TEST_ASSERT_EQUAL_INT(100, charge::percentFromMillivolts(4250));
+  TEST_ASSERT_EQUAL_INT(100, charge::percentFromMillivolts(4200));
+  TEST_ASSERT_EQUAL_INT(50, charge::percentFromMillivolts(3840));
+  TEST_ASSERT_INT_WITHIN(1, 57, charge::percentFromMillivolts(3860));  // between 55% and 60%
+  TEST_ASSERT_EQUAL_INT(10, charge::percentFromMillivolts(3690));
+  TEST_ASSERT_EQUAL_INT(0, charge::percentFromMillivolts(3400));
+  TEST_ASSERT_EQUAL_INT(0, charge::percentFromMillivolts(3000));
+}
+
+// Adds the same reading every 5 s from `from` to `to`, like the firmware
+// does, and returns the events.
+static std::vector<charge::Event> feed(charge::Gauge& g, uint32_t from, uint32_t to, int mv, int chip = -1) {
+  std::vector<charge::Event> events;
+  for (uint32_t now = from; now != to; now += 5000) {
+    const charge::Event e = g.add(now, mv, chip);
+    if (e != charge::Event::None) events.push_back(e);
+  }
+  return events;
+}
+
+void test_gauge_steps_of_five_without_flicker() {
+  charge::Gauge g;
+  TEST_ASSERT_EQUAL_INT(-1, g.percent());
+  g.add(0, 3840);
+  TEST_ASSERT_EQUAL_INT(50, g.percent());
+  for (uint32_t t = 5000; t < 300000; t += 5000) g.add(t, (t / 5000) % 2 ? 3855 : 3830);  // noisy readings
+  TEST_ASSERT_EQUAL_INT(50, g.percent());
+}
+
+void test_gauge_follows_a_real_change() {
+  charge::Gauge g;
+  g.add(0, 3840);
+  feed(g, 5000, 120000, 3950);
+  TEST_ASSERT_EQUAL_INT(70, g.percent());
+}
+
+void test_gauge_warns_once_when_low() {
+  charge::Gauge g;
+  std::vector<charge::Event> events = feed(g, 0, 600000, 3650);  // about 7%
+  TEST_ASSERT_EQUAL_UINT32(1, events.size());
+  TEST_ASSERT_EQUAL_INT(static_cast<int>(charge::Event::Low), static_cast<int>(events[0]));
+  TEST_ASSERT_EQUAL_UINT32(0, feed(g, 600000, 900000, 4000).size());  // charged
+  events = feed(g, 900000, 1500000, 3650);                            // low again: warns again
+  TEST_ASSERT_EQUAL_UINT32(1, events.size());
+}
+
+void test_gauge_turns_off_after_a_minute_empty() {
+  charge::Gauge g;
+  g.add(0, 3800);
+  const std::vector<charge::Event> events = feed(g, 5000, 300000, 3300);
+  TEST_ASSERT_EQUAL_UINT32(2, events.size());
+  TEST_ASSERT_EQUAL_INT(static_cast<int>(charge::Event::Low), static_cast<int>(events[0]));
+  TEST_ASSERT_EQUAL_INT(static_cast<int>(charge::Event::Empty), static_cast<int>(events[1]));
+}
+
+void test_gauge_ignores_a_dip_and_no_battery() {
+  charge::Gauge g;
+  TEST_ASSERT_EQUAL_UINT32(0, feed(g, 0, 50000, 0).size());  // nothing plugged in
+  TEST_ASSERT_EQUAL_INT(-1, g.percent());
+  feed(g, 50000, 100000, 3900);
+  TEST_ASSERT_EQUAL_UINT32(0, feed(g, 100000, 105000, 3200).size());  // one bad reading
+  TEST_ASSERT_EQUAL_UINT32(0, feed(g, 105000, 400000, 3900).size());
+}
+
+void test_gauge_uses_the_fuel_gauge_chip() {
+  charge::Gauge g;
+  g.add(0, 3700, 64);
+  TEST_ASSERT_EQUAL_INT(65, g.percent());
+}
+
 int main(int, char**) {
   UNITY_BEGIN();
   RUN_TEST(test_sanitize_keeps_latin1_accents);
@@ -349,5 +423,12 @@ int main(int, char**) {
   RUN_TEST(test_press_from_startup_is_ignored);
   RUN_TEST(test_press_ignores_bounces);
   RUN_TEST(test_press_works_across_the_millis_wrap);
+  RUN_TEST(test_percent_from_voltage);
+  RUN_TEST(test_gauge_steps_of_five_without_flicker);
+  RUN_TEST(test_gauge_follows_a_real_change);
+  RUN_TEST(test_gauge_warns_once_when_low);
+  RUN_TEST(test_gauge_turns_off_after_a_minute_empty);
+  RUN_TEST(test_gauge_ignores_a_dip_and_no_battery);
+  RUN_TEST(test_gauge_uses_the_fuel_gauge_chip);
   return UNITY_END();
 }

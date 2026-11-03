@@ -55,6 +55,15 @@ The glasses have one button: **SW38** on the Feather V2, **BOOT** on the ESP32-S
 
 Off is the ESP32's deep sleep: the screen and Bluetooth are off and the board draws so little that a charged battery lasts weeks. The battery still charges over USB while the glasses are off. Turning them back on starts them up as if you'd just plugged in the battery, and they reconnect to the iPhone.
 
+## Battery
+
+The top-right corner of the home screen shows the battery: an icon, plus the percentage while the iPhone is connected (otherwise the phone's status takes that spot).
+
+- At 10%, a "Battery low" message pops up once.
+- When the battery stays nearly empty (under 3.4 V) for a minute, the glasses say "Battery empty" and turn themselves off, which is easier on the battery than running it flat. Charge it, then press the button.
+- The Feather V2 works the percentage out from the battery's voltage, so it's approximate, and it reads high while charging. The ESP32-S3 Feather asks its fuel gauge chip (MAX17048). Older ESP32-S3 Feathers with an LC709203F chip, and the Wokwi simulator, show no battery.
+- The Serial Monitor prints each change, like `[battery] 3912 mV, 65%`.
+
 ## Try it in the simulator
 
 [Wokwi](https://wokwi.com) simulates the ESP32 and the OLED, so you can watch the HUD before the parts arrive. Bluetooth isn't simulated, so the simulator always runs demo mode.
@@ -97,10 +106,12 @@ Both need a C++ compiler on your computer: Xcode command line tools on a Mac, `b
 | `src/demo.*` | Fake notifications for demo mode |
 | `src/button.h` | Reads the button |
 | `src/power.*` | Turning off (deep sleep) and waking up on a button press |
+| `src/battery.*` | Reads the battery voltage, or the ESP32-S3 Feather's fuel gauge chip |
 | `lib/core/text.*` | Cleans up and word-wraps text for the font |
 | `lib/core/clock.*` | Date and time math |
 | `lib/core/ancs.*` | Apple's notification protocol, byte by byte |
 | `lib/core/notice.*` | Decides what each notification becomes (pop-up, weather line, Claude answer) |
 | `lib/core/press.*` | What each press and hold of the button means |
+| `lib/core/charge.*` | Battery percentage, the low-battery warning, and when to turn off |
 | `test/test_core/` | Unit tests for `lib/core` |
 | `scripts/merge_bin.py` | Makes `merged.bin` after each build, for the browser flasher |

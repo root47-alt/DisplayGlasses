@@ -11,6 +11,7 @@ namespace {
 const uint8_t* const kFontText = u8g2_font_6x10_tf;    // 21 characters per line
 const uint8_t* const kFontBold = u8g2_font_helvB08_tf;  // titles and headers
 const uint8_t* const kFontClock = u8g2_font_logisoso28_tn;
+const uint8_t* const kFontSmall = u8g2_font_5x7_tf;  // the home screen's top-right corner
 
 constexpr int kWidth = 128;
 constexpr int kTextWidth = 122;  // leaves room for the scroll bar
@@ -118,6 +119,12 @@ void Hud::remove(uint32_t id) {
                queue_.end());
   if (hasLast_ && last_.id == id && last_.kind == NoticeKind::Call) hasLast_ = false;
   if (showing_ && current_.id == id) finishNotice(millis());
+}
+
+void Hud::setBattery(int percent) {
+  if (percent == battery_) return;
+  battery_ = percent;
+  dirty_ = true;
 }
 
 void Hud::toast(const std::string& message, uint32_t ms) {
@@ -266,14 +273,22 @@ void Hud::drawHome(uint32_t now) {
   oled_.setFont(kFontText);
   if (haveTime) oled_.drawUTF8(2 + dx, 9 + dy, clockutil::formatDate(t).c_str());
 
-  const char* status = "";
+  // Top-right corner: the battery, and to its left the phone's status, or
+  // the battery percentage when the phone is connected. The small font keeps
+  // it clear of the longest date ("Wed 30 Sep").
+  int right = kWidth - 2 + dx;
+  if (battery_ >= 0) right = drawBattery(right, 2 + dy) - 3;
+  std::string corner;
   switch (link_) {
-    case Link::Demo: status = "DEMO"; break;
-    case Link::Searching: status = "no phone"; break;
-    case Link::Pairing: status = "pairing..."; break;
-    case Link::Ready: status = ""; break;
+    case Link::Demo: corner = "DEMO"; break;
+    case Link::Searching: corner = "no phone"; break;
+    case Link::Pairing: corner = "pairing"; break;
+    case Link::Ready:
+      if (battery_ >= 0) corner = std::to_string(battery_) + "%";
+      break;
   }
-  if (*status) oled_.drawUTF8(kWidth - 2 - textWidth(status) + dx, 9 + dy, status);
+  oled_.setFont(kFontSmall);
+  if (!corner.empty()) oled_.drawUTF8(right - textWidth(corner), 9 + dy, corner.c_str());
 
   // Big clock, with AM/PM tucked to the right.
   const std::string time = haveTime ? clockutil::formatTime(t, use24h_) : "--:--";
@@ -336,6 +351,21 @@ void Hud::drawToast() {
   const int y = (64 - h) / 2;
   oled_.drawRFrame(x, y, w, h, 4);
   oled_.drawUTF8(x + 7, y + 13, msg.c_str());
+}
+
+// A small battery, filled to the charge level. `right` is just past its
+// right edge; returns its left edge.
+int Hud::drawBattery(int right, int top) {
+  constexpr int kBodyW = 12;
+  constexpr int kBodyH = 7;
+  constexpr int kNubW = 2;
+  constexpr int kInnerW = kBodyW - 4;
+  const int x = right - kBodyW - kNubW;
+  oled_.drawFrame(x, top, kBodyW, kBodyH);
+  oled_.drawBox(x + kBodyW, top + 2, kNubW, kBodyH - 4);
+  const int fill = battery_ <= 0 ? 0 : std::max(1, (std::min(battery_, 100) * kInnerW + 50) / 100);
+  if (fill > 0) oled_.drawBox(x + 2, top + 2, fill, kBodyH - 4);
+  return x;
 }
 
 // A bold title and a line of detail, centered.

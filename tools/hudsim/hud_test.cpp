@@ -180,6 +180,50 @@ void prompt_stays_until_cleared() {
   CHECK(snapshot() == home);
 }
 
+void battery_shows_in_the_corner() {
+  clockutil::Clock clock;
+  clock.set(at(9, 40), sim::now_ms);  // a minute when the burn-in shift is zero
+  Hud hud;
+  hud.begin(0, 0);
+  hud.setClock(&clock, false);
+  hud.setLink(Link::Ready);
+  advance(hud, 100);
+  CHECK(litIn(snapshot(), 80, 0, 127, 10) == 0);  // no reading: nothing in the corner
+  hud.setBattery(100);
+  advance(hud, 100);
+  const std::vector<uint8_t> full = snapshot();
+  CHECK(litIn(full, 112, 2, 125, 8) > 40);  // the battery
+  CHECK(litIn(full, 80, 2, 108, 9) > 10);   // "100%"
+  CHECK(litIn(full, 114, 4, 121, 6) == 24);  // filled all the way
+  hud.setBattery(0);
+  advance(hud, 100);
+  CHECK(litIn(snapshot(), 114, 4, 121, 6) == 0);  // empty
+  hud.setBattery(50);
+  advance(hud, 100);
+  CHECK(litIn(snapshot(), 114, 4, 121, 6) == 12);  // half
+}
+
+void corner_stays_clear_of_the_date() {
+  // The longest date with the longest status and the battery.
+  clockutil::DateTime t = at(9, 40);
+  t.month = 9;
+  t.day = 30;
+  clockutil::Clock clock;
+  clock.set(t, sim::now_ms);
+  Hud hud;
+  hud.begin(0, 0);
+  hud.setClock(&clock, false);
+  hud.setLink(Link::Searching);
+  hud.setBattery(50);
+  advance(hud, 100);
+  const std::vector<uint8_t> f = snapshot();
+  bool gap = false;
+  for (int x = 58; x <= 72 && !gap; ++x) gap = litIn(f, x, 0, x + 1, 10) == 0;
+  CHECK(gap);  // two blank columns somewhere between the date and "no phone"
+  CHECK(litIn(f, 2, 0, 50, 10) > 30);    // the date
+  CHECK(litIn(f, 70, 0, 108, 10) > 30);  // "no phone"
+}
+
 void sleep_turns_the_screen_off() {
   Hud hud;
   hud.begin(0, 0);
@@ -271,6 +315,8 @@ int main() {
       {"toast takes over then clears", toast_takes_over_then_clears},
       {"prompt stays until cleared", prompt_stays_until_cleared},
       {"sleep turns the screen off", sleep_turns_the_screen_off},
+      {"battery shows in the corner", battery_shows_in_the_corner},
+      {"corner stays clear of the date", corner_stays_clear_of_the_date},
       {"splash text fits on screen", splash_text_fits_on_screen},
       {"mirror left-right is an exact mirror", mirror_left_right_is_an_exact_mirror},
       {"clock redraws when the hour changes", clock_redraws_when_the_hour_changes},

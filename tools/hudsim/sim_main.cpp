@@ -100,6 +100,7 @@ int main(int argc, char** argv) {
     hud.begin(0, 0);
     hud.setClock(&noTime, false);
     hud.setLink(Link::Searching);
+    hud.setBattery(55);
     run(hud, 2500);
   }
   {
@@ -110,6 +111,7 @@ int main(int argc, char** argv) {
     phone.set(nineFortyOne(), sim::now_ms);
     hud.setClock(&phone, false);
     hud.setLink(Link::Ready);
+    hud.setBattery(80);
     onNotification(1, "com.apple.shortcuts", 0, "Weather", "", "24\xC2\xB0" "C Partly Cloudy");
     run(hud, 200);
 
@@ -166,6 +168,7 @@ int main(int argc, char** argv) {
     hud.begin(0, 0);
     hud.setClock(&phone, false);
     hud.setLink(Link::Demo);
+    hud.setBattery(90);
     demo::begin(phone, onNotification);
     run(hud, 75000, [] { demo::loop(); });
   }

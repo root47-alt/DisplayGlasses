@@ -34,6 +34,9 @@ class Hud {
   void setClock(const clockutil::Clock* clock, bool use24h);
   void setLink(Link link);
   void setWeather(const std::string& weather);
+  // Battery charge in percent for the corner of the home screen, or -1 to
+  // hide it (no reading).
+  void setBattery(int percent);
 
   // Shows a notification now, or after the ones already waiting. Calls jump
   // the line.
@@ -77,6 +80,7 @@ class Hud {
   void drawNotice();
   void drawToast();
   void drawTwoLines(const std::string& title, const std::string& detail);
+  int drawBattery(int right, int top);
   void drawCentered(const std::string& s, int baseline);
   std::string fit(const std::string& s, int maxWidth);
   int textWidth(const std::string& s);
@@ -90,6 +94,7 @@ class Hud {
   int64_t lastClockKey_ = -1;  // the minute last drawn
   Link link_ = Link::Searching;
   std::string weather_;
+  int battery_ = -1;
 
   std::deque<Notice> queue_;
   Notice current_;

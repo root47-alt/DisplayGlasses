@@ -86,7 +86,7 @@ web/        the project website: browser flasher and home page
 - [x] Glasses draft: printable frame, display module and battery pod ([cad/README.md](cad/README.md#glasses-draft-v1))
 - [ ] Optics test on the bench, then tune and print the glasses
 - [ ] Battery life: sleep the screen and radio when idle
-- [ ] Battery level on the home screen
+- [x] Battery level on the home screen, a low-battery warning, and turning off when it's empty
 
 ## Safety
 

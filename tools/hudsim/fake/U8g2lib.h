@@ -40,6 +40,7 @@ class U8G2 {
   u8g2_uint_t getUTF8Width(const char* s) { return u8g2_GetUTF8Width(&u8g2, s); }
   void drawBox(u8g2_uint_t x, u8g2_uint_t y, u8g2_uint_t w, u8g2_uint_t h) { u8g2_DrawBox(&u8g2, x, y, w, h); }
   void setDrawColor(uint8_t color) { u8g2_SetDrawColor(&u8g2, color); }
+  void drawFrame(u8g2_uint_t x, u8g2_uint_t y, u8g2_uint_t w, u8g2_uint_t h) { u8g2_DrawFrame(&u8g2, x, y, w, h); }
   void drawRFrame(u8g2_uint_t x, u8g2_uint_t y, u8g2_uint_t w, u8g2_uint_t h, u8g2_uint_t r) {
     u8g2_DrawRFrame(&u8g2, x, y, w, h, r);
   }

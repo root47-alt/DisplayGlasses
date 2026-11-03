@@ -6,7 +6,9 @@
 #include <Arduino.h>
 #include <Preferences.h>
 
+#include "battery.h"
 #include "button.h"
+#include "charge.h"
 #include "clock.h"
 #include "config.h"
 #include "hud.h"
@@ -25,6 +27,10 @@ Hud hud;
 Button button(BUTTON_PIN);
 clockutil::Clock phoneClock;
 Preferences prefs;
+charge::Gauge gauge;
+bool haveBattery = false;
+uint32_t nextBatteryAt = 0;
+constexpr uint32_t kBatteryEveryMs = 5000;
 
 void onNotification(uint32_t uid, const std::string& appId, uint8_t category, const std::string& title,
                     const std::string& subtitle, const std::string& message) {
@@ -48,16 +54,36 @@ void cycleMirror() {
 
 // Deep sleep until the button is pressed again, which starts the glasses up
 // from the beginning (see power.h).
-void turnOff() {
+void turnOff(const char* title = "Turning off", const char* detail = "press to turn on") {
   if (!power::canWakeFrom(BUTTON_PIN)) {
     hud.toast("Can't turn off");  // the button's pin can't wake the chip
     return;
   }
-  Serial.println("Turning off");
-  hud.splash("Turning off", "press to turn on");
+  Serial.println(title);
+  hud.splash(title, detail);
   delay(1500);
   hud.sleep();
   power::sleepUntilPressed(BUTTON_PIN);
+}
+
+// Every few seconds: update the battery level, warn when it gets low, and
+// turn off when it's empty.
+void checkBattery() {
+  if (!haveBattery) return;
+  const uint32_t now = millis();
+  if (static_cast<int32_t>(now - nextBatteryAt) < 0) return;
+  nextBatteryAt = now + kBatteryEveryMs;
+  battery::Reading r;
+  if (!battery::read(r)) return;
+  const int before = gauge.percent();
+  const charge::Event event = gauge.add(now, r.millivolts, r.percent);
+  if (gauge.percent() != before) Serial.printf("[battery] %d mV, %d%%\n", r.millivolts, gauge.percent());
+  hud.setBattery(gauge.percent());
+  switch (event) {
+    case charge::Event::Low: hud.toast("Battery low: " + std::to_string(gauge.percent()) + "%", 4000); break;
+    case charge::Event::Empty: turnOff("Battery empty", "charge, then press"); break;
+    case charge::Event::None: break;
+  }
 }
 
 void forgetPhone() {
@@ -88,6 +114,8 @@ void setup() {
   hud.setMirror(static_cast<Mirror>(prefs.getUChar("mirror", DEFAULT_MIRROR) % static_cast<uint8_t>(Mirror::Count)));
   hud.setBrightness(SCREEN_BRIGHTNESS);
   hud.setClock(&phoneClock, USE_24H_CLOCK);
+  haveBattery = battery::begin();
+  checkBattery();
 
 #ifdef DEMO_MODE
   hud.setLink(Link::Demo);
@@ -145,6 +173,7 @@ void loop() {
       break;
   }
 
+  checkBattery();
 #ifdef DEMO_MODE
   demo::loop();
 #else

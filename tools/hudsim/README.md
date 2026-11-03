@@ -28,7 +28,7 @@ That writes `overview.png` (the main screens with captions), `demo.gif` (demo mo
 
 ## Screen tests
 
-`hud_test.cpp` checks the screen's behavior by looking at the actual pixels: a call disappears when it ends, the queue keeps the newest eight messages, long answers scroll and close, toasts clear, text never runs off the screen, the mirror mode is an exact mirror, the messages shown while you hold the button stay until you let go, the screen turns off before sleep, and the clock redraws when the time changes.
+`hud_test.cpp` checks the screen's behavior by looking at the actual pixels: a call disappears when it ends, the queue keeps the newest eight messages, long answers scroll and close, toasts clear, text never runs off the screen, the mirror mode is an exact mirror, the messages shown while you hold the button stay until you let go, the screen turns off before sleep, the battery icon fills to the charge level and stays clear of the date, and the clock redraws when the time changes.
 
 ```bash
 tools/hudsim/build.sh --test
