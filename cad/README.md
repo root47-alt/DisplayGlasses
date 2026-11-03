@@ -27,9 +27,10 @@ All files in [`stl/`](stl) are already lying the right way for printing. **No su
 | `fit_test.stl` | **Print first.** A short rail and a bare holder base to check the sliding fit (see below) |
 | `rail.stl` | 150 mm long, fits a 180 mm bed |
 | `oled_holder.stl` | For the Adafruit 0.96" OLED (29.2 × 26.7 mm board) |
-| `lens_holder_30mm.stl` | For the recommended 30 mm lens. Holders for 20, 25 and 34 mm lenses are there too; print one per lens you want to try |
+| `lens_holder_30mm.stl` | For the recommended 30 mm lens. Holders for 20, 25, 25.4 (1 inch, common in school labs) and 34 mm lenses are there too; print one for each lens you might get |
 | `plate_holder.stl` | Holds a flat splitter at 45°: the recommended 25 mm round plate, a microscope slide or clear plastic (up to 1.2 mm thick) |
-| `cube_holder_15mm.stl` | Only if you have a 15 mm beam splitter cube. Print it in black if you can: its back wall soaks up stray light |
+| `plate_holder_thick.stl` | Same, for a thick plate up to 6 mm (teleprompter glass, many lab splitters). Wedge a thinner plate with a strip of folded paper |
+| `cube_holder_20mm.stl`, `cube_holder_25.4mm.stl` | Only if you have a beam splitter cube: 20 mm or 1 inch (25.4 mm), the sizes school labs usually have. There's a `cube_holder_15mm.stl` too. Print them in black if you can: the back wall soaks up stray light |
 
 **Settings:** PLA or PETG, 0.2 mm layers (0.16 mm makes the scale numbers crisper), 3 walls, 15–20% infill. All the parts together use roughly 50 g of filament.
 
