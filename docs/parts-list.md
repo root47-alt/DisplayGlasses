@@ -21,7 +21,7 @@ The [optics calculator](../tools/optics/README.md) picked these. A **30 mm lens 
 
 | Part | Why | Price |
 |---|---|---|
-| **Lens:** plano-convex, **30 mm diameter, 60 mm focal length**, glass. Search for "plano convex lens 30mm 60mm focal length"; science-supply and optics shops sell them | Makes the screen look like a 55-inch TV seen from about 3.3 m. Put the flat side toward the screen | ≈ $8–20 |
+| **Lens:** plano-convex, **30 mm diameter, 60 mm focal length**, glass, e.g. Edmund Optics #45-241 (uncoated). Search for "plano convex lens 30mm 60mm focal length"; science-supply and optics shops sell them | Makes the screen look like a 55-inch TV seen from about 3.3 m. Put the flat side toward the screen | ≈ $10–40 ($40.25 at Edmund) |
 | *Optional second lens:* 25 mm diameter, 50 mm focal length, e.g. [Eisco Labs PH0532ACV](https://www.eiscolabs.com/products/ph0532acv) or [Shalom EO 1101-078](https://www.shalomeo.com/Optics/Optical-Lens/BK7-lambda4-Plano-convex-Lens/D25.0mm-F50mm-Uncoated-1101-078) | Bigger text and a shorter module, but your eye has to stay almost exactly centered. Nice to compare on the bench | ≈ $8–20 |
 | **Beam splitter:** [Knight Optical BAE2511](https://www.knightoptical.com/stock/plate-beamsplitter-standard-range-50-50-visible-420-680nm-25mmdia-x-1-1mmthk-bae2511), 25 mm round, 1.1 mm thick, 50/50, anti-reflection coated back | Bounces the screen into your eye while you see through it. Weighs about 1 g. The coated back stops a faint double image. If you find a rectangular plate about 35 × 25 mm, it gives your eye more room (see below) | $39.34 (in stock) |
 
@@ -38,18 +38,22 @@ The [optics calculator](../tools/optics/README.md) picked these. A **30 mm lens 
 
 ## Glasses and printing
 
+No glasses to buy: the whole frame is printed ([cad/README.md](../cad/README.md#glasses-draft-v1)).
+
 | Part | Why | Price |
 |---|---|---|
-| Cheap non-prescription glasses (clear) or sunglasses | The display module clips onto them until we print a full frame. Tinted lenses make the display much easier to see outdoors | $5–10 |
-| PLA or PETG filament | For the 3D-printed parts (PETG is tougher and handles a hot car better) | — |
+| PLA or PETG filament, black if you can | All the printed parts, about 100 g including the optics bench (PETG is tougher and handles a hot car better). Black soaks up stray light inside the display module, so the text looks crisper | — |
+| M2 screws: two 8 mm and two 10 mm long | The 8 mm ones hold the brow bar to the display module; the 10 mm ones are the temple hinges (2 mm pins also work). A small M2 assortment kit covers it | ≈ $5 |
 
-**Total:** about $75–95 with option B, plus shipping.
+**Total:** about $46 for the electronics, $50–80 for the optics (nothing if you can borrow them) and about $5 for screws, plus shipping.
 
 ## Tools
 
 - Your 3D printer
-- Calipers (or a ruler), to measure parts for the 3D models
-- Double-sided tape or Blu-Tack
+- Calipers (or a ruler), to measure parts for the 3D models. A cheap digital caliper is worth it
+- A small screwdriver that fits the M2 screws
+- Double-sided tape or Blu-Tack, for the bench
+- Two small rubber bands or tape, to hold the display module closed while testing. If you glue it later, use epoxy: super glue fumes can fog the lens and splitter
 
 ## Cheaper option (needs a little soldering)
 

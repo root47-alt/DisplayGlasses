@@ -97,7 +97,7 @@ In the Customizer, set:
 1. **Lens:** press it into the lens ring from the open side, flat side last (the flat side faces the screen). Set the ring between the two ribs in the bottom half.
 2. **Splitter:** stand the plate's lower edge in the groove of the bottom half's angled bracket.
 3. **Screen:** press the OLED onto the sled's corner posts, face toward the lens. Run the cable out through the sled's window and the slot in the end wall. Set the sled in the far end.
-4. **Close:** put the top half on, so the plate's upper edge goes into its groove. For testing, hold the halves together with tape or two small rubber bands; glue them once everything is right.
+4. **Close:** put the top half on, so the plate's upper edge goes into its groove. For testing, hold the halves together with tape or two small rubber bands; glue them once everything is right. Use epoxy, not super glue: its fumes can fog the lens and splitter.
 5. **Frame:** screw the brow bar onto the module through its two slots. Slide it until the splitter sits right in front of your pupil, then tighten.
 6. **Temples:** slide each temple's tongue into its socket and push a pin or screw through the hole.
 7. **Pod:** put the battery in, the Feather on top, and slide the lid in. Slide the pod onto the right temple from the back.
