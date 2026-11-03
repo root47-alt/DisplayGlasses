@@ -61,7 +61,7 @@ Open `optics_bench.scad` in OpenSCAD and show **Window → Customizer**. Enter y
 
 ![Glasses draft on a head outline](images/glasses.png)
 
-`glasses.scad` is a first full design: a printed frame with the display module in place of the right lens, and a battery pod on the right temple. It's sized from the optics calculator (30 mm lens with a 60 mm focal length, 25 mm round plate splitter 25 mm in front of your pupil). **Treat it as a draft:** run the optics bench first, put your numbers and face measurements into the Customizer, then print.
+`glasses.scad` is a first full design: a printed frame with the display module in place of the right lens, and a battery pod on the right temple. It's sized from the optics calculator (30 mm lens with a 60 mm focal length, 25 mm round plate splitter 25 mm in front of your pupil). The face sizes are already yours (pupil distance 58.5 mm, frame 140 mm wide, arms 100 mm from hinge to bend, bridge 16.5 mm, head 150 mm), so the **frame and temples can be printed now** to check the fit. **The module and pod are still a draft:** run the optics bench first, put its numbers into the Customizer, then print them.
 
 ![Every glasses part as it prints](images/glasses_parts.png)
 
@@ -78,7 +78,7 @@ All files are in [`stl/glasses/`](stl/glasses), already lying the right way to p
 | File | Notes |
 |---|---|
 | `frame.stl` | Left rim, bridge, and the brow bar that bolts onto the module |
-| `temple.stl` | Print two. It's 181 mm long, so on a 180 mm bed, turn it diagonally |
+| `temple.stl` | Print two. About 127 mm long. The sockets angle each arm out a little so it meets your head with a light grip |
 | `module_lower.stl`, `module_upper.stl` | The display module's two halves. The top half prints upside down |
 | `lens_ring.stl` | Holds the 30 mm lens with three grip ribs |
 | `screen_sled.stl` | Holds the OLED and slides inside the module for focus |
@@ -89,7 +89,7 @@ You also need two M2 × 8 screws (brow bar to module), and two M2 × 10 screws o
 ### Measure first
 
 In the Customizer, set:
-- **Your face:** pupil distance (an optician or a phone app can measure it), frame width, temple length
+- **Your face:** pupil distance (an optician or a phone app can measure it), and from glasses that fit you: the frame's width, the arm length from the hinge to the bend, and the gap between the lenses at the nose. Also your head's width just above the ears (a phone app's "face width" is close enough)
 - **Optics:** the screen-to-lens and lens-to-splitter distances from the bench, and your lens's diameter and thickness
 - **Splitter:** the module holds a 25 mm round plate up to about 1.4 mm thick. A rectangular plate (like 35 × 25 mm) needs a change to the module, so ask before printing.
 

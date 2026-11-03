@@ -15,12 +15,16 @@
 part = "assembly"; // [assembly:Everything on a head outline (preview only), frame:Frame front, temple:Temple (print two), module_lower:Display module bottom half, module_upper:Display module top half, lens_ring:Lens ring, screen_sled:Screen sled, pod_body:Battery pod, pod_lid:Battery pod lid]
 
 /* [Your face] */
-// Distance between your pupils (an optician or a phone app can measure it)
-pd = 63;
-// Width of the frame front, end to end
-frame_width = 138;
-// Temple length from the frame to the bend behind your ear
-temple_length = 145;
+// Distance between your pupils, for far vision (an optician or a phone app can measure it)
+pd = 58.5;
+// Width of the frame front, end to end (measure glasses that fit you)
+frame_width = 140;
+// On glasses that fit you: from the hinge to where the arm bends down behind your ear
+temple_length = 100;
+// Gap between the two lenses at your nose, on glasses that fit you
+bridge_width = 16.5;
+// Width of your head just above your ears (a phone app's "face width" is close enough). The arms angle out to it.
+head_width = 150;
 // How far in front of your pupils the frame front sits
 frame_y = 15;
 
@@ -72,22 +76,38 @@ plate_r = plate_d / 2;
 groove_depth = 3;
 z_bracket = sqrt(plate_r * plate_r - pow(plate_r - groove_depth, 2)) > 0 ? plate_r - groove_depth : 0;
 
-// Frame
-fy0 = frame_y;
-fy1 = frame_y + 4;
-rim_w = 54;
-rim_h = 42;
-band = 3.5;
-x_left_eye = -pd;
-x_mid = -pd / 2;
-x_left_end = x_mid - frame_width / 2;
-x_temple_r = 41;                        // where the right temple runs
-joint_x = [24, 32];                     // the brow bar's screw slots (nominal pupil distance)
-
 // Temple
 temple_t = 3.6;  // thickness along X
 temple_h = 7;    // height along Z
-tongue_len = 9;
+tongue_len = 9;  // the end that slides into a socket; its pin hole is 3 mm from the tip
+grip = 2;        // how far each arm presses in against your head
+
+// Frame
+fy0 = frame_y;
+fy1 = frame_y + 4;
+rim_h = 42;
+band = 3.5;
+x_left_eye = -pd;
+x_mid = -pd / 2;                        // the middle of your nose
+x_left_end = x_mid - frame_width / 2;
+x_rim_in = x_mid - bridge_width / 2;    // the left rim's edge at your nose...
+x_rim_out = x_left_end + 5;             // ...and at the side of your head
+rim_w = x_rim_in - x_rim_out;
+x_post = x_mid + bridge_width / 2 - 1.5;  // the post on the right side of your nose
+x_temple_l = x_left_end + 4;            // outer face of the left temple
+x_temple_r = x_mid + frame_width / 2 - 4 - temple_t;  // inner face of the right temple, mirroring the left
+joint_x = [24, 32];                     // the brow bar's screw slots (nominal pupil distance)
+
+// Both temple sockets end at the module's back wall, so the two temples sit
+// the same distance back and can be printed the same.
+y_socket = ay - tiy - wall;             // front end of each temple slot
+y_pin = y_socket - 3;
+// The bend lands where it does on your own glasses, taking their hinge to be
+// about 5 mm behind the frame front.
+arm_len = y_socket - fy0 + temple_length;  // straight part, from the end of the tongue
+pin_to_bend = arm_len + 2;
+// Angle each arm out so it meets your head with a light grip.
+splay = max(0, atan((head_width / 2 - grip - (frame_width / 2 - 4 - temple_t)) / pin_to_bend));
 
 // --------------------------------------------------------------- dispatch
 
@@ -154,19 +174,27 @@ module splitter_bracket(top) {
   }
 }
 
+// The slot and pin hole for a temple's tongue, with the temple's inner or
+// outer face at x0, turned `a` degrees about the pin (positive swings the arm
+// toward +X as it runs back).
+module temple_slot(x0, a) {
+  pivot = [x0 + temple_t / 2, y_pin, 0];
+  translate(pivot) rotate([0, 0, a]) translate(-pivot) {
+    translate([x0 - clearance, y_socket - 6 - eps, 3 - clearance]) cube([temple_t + 2 * clearance, 6 + eps, temple_h + 2 * clearance]);
+    translate([x0 - 5, y_pin, 3 + temple_h / 2]) rotate([0, 90, 0]) cylinder(d = 2.1, h = temple_t + 10);
+  }
+}
+
 module module_body() {
   difference() {
     union() {
       tube_outer();
       // temple socket on the back wall (full height of the top half, so it prints without support)
-      box(x_temple_r - 4, x_temple_r + temple_t + 4, ay - tiy - wall - 6, ay - tiy - wall + eps, 0.05, tiz + wall);
+      box(x_temple_r - 4, x_temple_r + temple_t + 4, y_socket - 6, y_socket + eps, 0.05, tiz + wall);
     }
     tube_inner();
     eye_relief();
-    // temple slot and its pin hole
-    translate([x_temple_r - clearance, ay - tiy - wall - 6 - eps, 3 - clearance])
-      cube([temple_t + 2 * clearance, 6 + eps, temple_h + 2 * clearance]);
-    translate([x_temple_r - 5, ay - tiy - wall - 3, 3 + temple_h / 2]) rotate([0, 90, 0]) cylinder(d = 2.1, h = temple_t + 10);
+    temple_slot(x_temple_r, splay);
     // pilot holes for the M2 screws that hold the brow bar
     for (x = joint_x) translate([x, (fy0 + fy1) / 2, tiz - 3]) cylinder(d = 1.7, h = wall + 4);
     // focus slot in the top: the sled's tab sticks out here
@@ -230,18 +258,21 @@ module screen_sled(x_glass) {
 // your pupil). The right "lens" opening is where the display module sits.
 
 module frame_profile() {
-  // left rim
-  translate([x_left_eye, 1]) difference() { rounded_rect(rim_w, rim_h, 12); rounded_rect(rim_w - 2 * band, rim_h - 2 * band, 12 - band); }
-  // bridge, arched over the nose
+  // left rim, from the side of your nose out to the end piece
+  translate([(x_rim_in + x_rim_out) / 2, 1]) difference() {
+    rounded_rect(rim_w, rim_h, 12);
+    rounded_rect(rim_w - 2 * band, rim_h - 2 * band, 12 - band);
+  }
+  // bridge, arched over the nose: as wide as the gap on your own glasses
   difference() {
-    translate([x_left_eye + rim_w / 2 - band, 5]) square([(x_mid + 8.5) - (x_left_eye + rim_w / 2 - band), 5]);
-    translate([x_mid, 2]) circle(r = 6);
+    translate([x_rim_in - band, 5]) square([x_post + 3.5 - (x_rim_in - band), 7]);
+    translate([x_mid, 0]) circle(r = bridge_width / 2);
   }
   // nose-side post and brow bar over the right eye
-  translate([x_mid + 4.5, 5]) square([3.5, 19]);
-  translate([x_mid + 4.5, 18]) square([joint_x[1] + 6 - (x_mid + 4.5), 6]);
+  translate([x_post, 5]) square([3.5, 19]);
+  translate([x_post, 18]) square([joint_x[1] + 6 - x_post, 6]);
   // left end piece
-  translate([x_left_end, -1]) square([x_left_eye - rim_w / 2 + band - x_left_end, 14]);
+  translate([x_left_end, -1]) square([x_rim_out + band - x_left_end, 14]);
 }
 
 module frame() {
@@ -250,14 +281,12 @@ module frame() {
       translate([0, fy1, 0]) rotate([90, 0, 0]) linear_extrude(fy1 - fy0) frame_profile();
       // thicker block where the brow bar meets the module
       box(joint_x[0] - 6, joint_x[1] + 6, fy0 - 4, fy1, 18, 24);
-      // left temple socket
-      box(x_left_end, x_left_end + temple_t + 8, fy0 - 6, fy0 + eps, -1, 13);
+      // left temple socket, reaching back as far as the right one on the module
+      box(x_left_end, x_left_end + temple_t + 8, y_socket - 6, fy0 + eps, -1, 13);
     }
     // screw slots (M2), long along X for adjusting
     for (x = joint_x) hull() for (dx = [-5, 5]) translate([x + dx, (fy0 + fy1) / 2 - 2, 17]) cylinder(d = 2.4, h = 8);
-    // left temple slot and pin hole
-    translate([x_left_end + 4 - clearance, fy0 - 6 - eps, 3 - clearance]) cube([temple_t + 2 * clearance, 6 + eps, temple_h + 2 * clearance]);
-    translate([x_left_end - 1, fy0 - 3, 3 + temple_h / 2]) rotate([0, 90, 0]) cylinder(d = 2.1, h = temple_t + 10);
+    temple_slot(x_temple_l, -splay);
   }
 }
 
@@ -267,15 +296,15 @@ module frame() {
 // 2 mm pin or screw) and a gentle bend down behind the ear.
 
 module temple_profile() {
-  // in the Y/Z plane: y runs backward from 0 (front of the tongue)
-  translate([-tongue_len, 0]) square([tongue_len + temple_length, temple_h]);
-  translate([temple_length - 4, temple_h]) rotate(-35) translate([0, -temple_h]) square([38, temple_h]);
+  // in the Y/Z plane: the tongue's tip is at y = -tongue_len, the arm runs toward +y
+  translate([-tongue_len, 0]) square([tongue_len + arm_len, temple_h]);
+  translate([arm_len - 4, temple_h]) rotate(-35) translate([0, -temple_h]) square([38, temple_h]);
 }
 
 module temple() {
   difference() {
     rotate([90, 0, 90]) linear_extrude(temple_t) temple_profile();
-    translate([-1, tongue_len / 2 - tongue_len, temple_h / 2]) rotate([0, 90, 0]) cylinder(d = 2.1, h = temple_t + 2);
+    translate([-1, -tongue_len + 3, temple_h / 2]) rotate([0, 90, 0]) cylinder(d = 2.1, h = temple_t + 2);
   }
 }
 
@@ -343,8 +372,8 @@ module assembly() {
   }
 
   color("SlateGray") frame();
-  color("SlateGray") translate([x_left_end + 4, fy0, 3]) temple_in_place();
-  color("SlateGray") translate([x_temple_r, ay - tiy - wall, 3]) temple_in_place();
+  color("SlateGray") temple_placed(x_temple_l, -splay) temple_in_place();
+  color("SlateGray") temple_placed(x_temple_r, splay) temple_in_place();
 
   color("Orange") module_lower();
   color("Orange", 0.85) module_upper();
@@ -362,14 +391,21 @@ module assembly() {
     translate([0, ay, 0]) rotate([90, 0, 0]) cylinder(d = 0.8, h = ay - 3, $fn = 8);
   }
 
-  // battery pod on the right temple, about 45 mm behind the module
-  color("Teal") translate([x_temple_r + temple_t + clearance + 1.6, ay - tiy - wall - 18 - pod_out[0], 3 + temple_h / 2 - pod_out[1] / 2])
-    rotate([90, 0, 90]) mirror([0, 0, 1]) mirror([0, 0, 1]) translate([0, 0, 0]) pod_in_place();
+  // battery pod on the right temple, a little behind the module
+  color("Teal") temple_placed(x_temple_r, splay)
+    translate([temple_t + clearance + 1.6, -18 - pod_out[0], temple_h / 2 - pod_out[1] / 2]) rotate([90, 0, 90]) pod_in_place();
+}
+
+// Puts a temple (or something riding on it) in its socket: the tongue's tip
+// at the slot's front end, turned `a` degrees about the pin.
+module temple_placed(x0, a) {
+  translate([x0 + temple_t / 2, y_pin, 3]) rotate([0, 0, a]) translate([-temple_t / 2, 3, 0]) children();
 }
 
 module temple_in_place() {
-  // temple() is built with y running backward; flip it to run toward -Y
-  mirror([0, 1, 0]) translate([0, -tongue_len, 0]) temple();
+  // temple() is built with the arm running toward +Y; flip it so the tip is at
+  // the origin and the arm runs back toward -Y
+  mirror([0, 1, 0]) translate([0, tongue_len, 0]) temple();
 }
 
 module pod_in_place() {
