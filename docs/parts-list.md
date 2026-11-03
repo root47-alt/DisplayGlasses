@@ -23,10 +23,17 @@ The [optics calculator](../tools/optics/README.md) picked these. A **30 mm lens 
 |---|---|---|
 | **Lens:** plano-convex, **30 mm diameter, 60 mm focal length**, glass. Search for "plano convex lens 30mm 60mm focal length"; science-supply and optics shops sell them | Makes the screen look like a 55-inch TV seen from about 3.3 m. Put the flat side toward the screen | ≈ $8–20 |
 | *Optional second lens:* 25 mm diameter, 50 mm focal length, e.g. [Eisco Labs PH0532ACV](https://www.eiscolabs.com/products/ph0532acv) or [Shalom EO 1101-078](https://www.shalomeo.com/Optics/Optical-Lens/BK7-lambda4-Plano-convex-Lens/D25.0mm-F50mm-Uncoated-1101-078) | Bigger text and a shorter module, but your eye has to stay almost exactly centered. Nice to compare on the bench | ≈ $8–20 |
-| **Beam splitter:** [Knight Optical BAE2511](https://www.knightoptical.com/stock/plate-beamsplitter-standard-range-50-50-visible-420-680nm-25mmdia-x-1-1mmthk-bae2511), 25 mm round, 1 mm thick, 50/50, anti-reflection coated back | Bounces the screen into your eye while you see through it. Weighs about 1 g. The coated back stops a faint double image | $39.34 (in stock) |
+| **Beam splitter:** [Knight Optical BAE2511](https://www.knightoptical.com/stock/plate-beamsplitter-standard-range-50-50-visible-420-680nm-25mmdia-x-1-1mmthk-bae2511), 25 mm round, 1.1 mm thick, 50/50, anti-reflection coated back | Bounces the screen into your eye while you see through it. Weighs about 1 g. The coated back stops a faint double image. If you find a rectangular plate about 35 × 25 mm, it gives your eye more room (see below) | $39.34 (in stock) |
+
+**If you can't find these exact parts:**
+- **Lens:** plano-convex, 30 mm wide or more, focal length 55–70 mm. With the 25 mm round plate, use 60 mm or longer: shorter ones dim the corners. A 35 mm wide lens helps only with a square or rectangular plate.
+- **Beam splitter:** a flat plate, 50/50 and non-polarizing (anything from 30/70 to 60/40 works), about 1 mm thick (the printed slots take up to about 1.4 mm). At least 25 mm, round or square. A rectangle about 35 × 25 mm is ideal, long side horizontal; past about 40 mm wide it stops helping.
+- **Bench only:** a non-polarizing cube of 20–25 mm works on the bench, but it's too heavy for the glasses.
+
+[Choosing a beam splitter](optics.md#choosing-a-beam-splitter) explains why.
 
 **Cheaper ways to start:**
-- **Free:** a glass microscope slide or a piece of clear plastic works as a splitter on the bench. It reflects only about 8% of the light, so it only works indoors with the lights low.
+- **Free:** a glass microscope slide or a piece of clear plastic works as a splitter on the bench. It reflects only about 10% of the light, so it only works indoors with the lights low.
 - **Teleprompter glass:** shops like [Two Way Mirrors](https://www.twowaymirrors.com/beamsplitter-mirror/) and [telepromptermirror.com](https://telepromptermirror.com/?p=35216) cut 30% reflective glass to size. It's usually 3 mm thick, so it's heavier and shows a slight double image, but it's fine for the bench.
 
 ## Glasses and printing

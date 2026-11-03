@@ -37,6 +37,7 @@
   }
 
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body {
     background: var(--bg);
     color: var(--ink);
@@ -79,6 +80,7 @@
   .seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
   .seg button { font: 600 14px var(--body); padding: 8px; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
   .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .link { font: 600 12.5px/1.4 var(--body); color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 
   .results { display: grid; gap: 20px; min-width: 0; }
   .verdict { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -86,7 +88,11 @@
   .pill.good { color: var(--good); } .pill.warn { color: var(--warn); } .pill.bad { color: var(--bad); }
   .verdict p { margin: 0; min-width: 0; flex: 1 1 260px; }
 
-  .readings { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .readings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  @media (max-width: 560px) {
+    .readings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .reading:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  }
   .reading { background: var(--panel); padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
   .reading .k { font-size: 12.5px; color: var(--muted); }
   .reading .v { font: 600 22px/1.2 var(--mono); font-variant-numeric: tabular-nums; }
@@ -96,8 +102,9 @@
   .figure { display: grid; gap: 10px; }
   .figure-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
   .figure-head h2 { margin: 0; }
+  .slips { display: flex; flex-wrap: wrap; gap: 6px 18px; }
   .shift { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
-  .shift input { width: 160px; }
+  .shift input { width: 120px; }
   .shift output { font: 600 13px var(--mono); color: var(--ink); min-width: 56px; }
   canvas { width: 100%; display: block; border-radius: 8px; }
   .caption { margin: 0; font-size: 13px; color: var(--muted); }
@@ -155,19 +162,26 @@
             <button type="button" id="sp-cube" data-splitter="cube">Cube</button>
           </div>
         </div>
+        <div class="field" id="shape-field">
+          <span class="field-top"><label id="shape-l">Plate shape</label></span>
+          <div class="seg" role="group" aria-labelledby="shape-l">
+            <button type="button" id="sh-round" data-shape="round">Round</button>
+            <button type="button" id="sh-rect" data-shape="rect">Rectangle</button>
+          </div>
+        </div>
         <div class="field">
-          <div class="field-top"><label for="size" id="size-l">Plate width</label><output id="size-out" for="size"></output></div>
-          <input id="size" type="range" min="10" max="35" step="0.5">
-          <small id="size-help">The side that tilts 45° across the light.</small>
+          <div class="field-top"><label for="size" id="size-l">Plate diameter</label><output id="size-out" for="size"></output></div>
+          <input id="size" type="range" min="10" max="50" step="0.5">
+          <small id="size-help"></small>
         </div>
         <div class="field" id="plateH-field">
           <div class="field-top"><label for="plateH">Plate height</label><output id="plateH-out" for="plateH"></output></div>
-          <input id="plateH" type="range" min="10" max="30" step="1">
+          <input id="plateH" type="range" min="10" max="40" step="1">
         </div>
         <div class="field">
           <div class="field-top"><label for="eye">Eye to splitter center</label><output id="eye-out" for="eye"></output></div>
-          <input id="eye" type="range" min="16" max="35" step="0.5">
-          <small>From your pupil. Keep it about 25 mm so the tilted splitter clears your eyelashes.</small>
+          <input id="eye" type="range" min="16" max="40" step="0.1">
+          <small>From your pupil. A bigger splitter has to sit farther out so its near edge clears your eyelashes. <button type="button" class="link" id="eye-safe"></button></small>
         </div>
         <div class="field">
           <div class="field-top"><label for="image">Text floats at</label></div>
@@ -193,13 +207,19 @@
       <section class="panel figure" aria-labelledby="view-h">
         <div class="figure-head">
           <h2 id="view-h">What your eye sees</h2>
-          <label class="shift" for="shift">Glasses slip sideways
-            <input id="shift" type="range" min="-6" max="6" step="0.5" value="0">
-            <output id="shift-out" for="shift">0 mm</output>
-          </label>
+          <div class="slips">
+            <label class="shift" for="shift">Glasses slip sideways
+              <input id="shift" type="range" min="-8" max="8" step="0.5" value="0">
+              <output id="shift-out" for="shift">0 mm</output>
+            </label>
+            <label class="shift" for="shiftV">up/down
+              <input id="shiftV" type="range" min="-8" max="8" step="0.5" value="0">
+              <output id="shiftV-out" for="shiftV">0 mm</output>
+            </label>
+          </div>
         </div>
         <canvas id="view" width="900" height="520" aria-label="Simulated view through the glasses"></canvas>
-        <p class="caption">One eye's view, with grid lines every 10°. The dashed box is the screen's edge. Only lit pixels show up; dimmed or missing pixels are blocked by the lens or the splitter.</p>
+        <p class="caption">One eye's view, with grid lines every 10°. The dashed box is the screen's edge. Only lit pixels show up; dimmed or missing pixels are blocked by the lens or the splitter. Slide the glasses to see which corners dim first.</p>
       </section>
 
       <section class="panel figure" aria-labelledby="layout-h">
@@ -212,16 +232,18 @@
         <h2 id="compare-h">Compare common setups</h2>
         <div class="table-box">
           <table>
-            <thead><tr><th>Setup</th><th>Image</th><th>Text at 1 m</th><th>Eye box</th><th>Screen → splitter</th><th>Splitter</th></tr></thead>
+            <thead><tr><th>Setup</th><th>Image</th><th>Text at 1 m</th><th>Eye box</th><th>Screen → splitter</th><th>Weight</th></tr></thead>
             <tbody id="compare"></tbody>
           </table>
         </div>
       </section>
 
       <section class="notes">
-        <p><strong>Eye box</strong> is how far the glasses can slide sideways (or up and down) on your face before the edges of the screen start to dim. Under 3 mm feels fussy; 5 mm or more is comfortable.</p>
+        <p><strong>Eye box</strong> is how far the glasses can slide sideways (or up and down) on your face before any part of the screen starts to dim, corners included. <strong>Half bright</strong> is how far they can slide before an edge or corner drops to about half brightness. Under 3 mm feels fussy; 5 mm or more is comfortable.</p>
+        <p><strong>Plate shape:</strong> the splitter tilts 45°, so from your eye it looks narrower than it is, while the image is wide. Put a rectangular plate's long side horizontal. The image's corners pass through the plate's corners, so a square or rectangular plate keeps them brighter than a round one.</p>
+        <p><strong>Near edge:</strong> the tilted splitter's nearest edge comes toward your eye. Keep it at least 16 mm from your pupil so it clears your eyelashes. A bigger splitter has to sit farther out, so past about 40 mm wide it stops helping.</p>
         <p><strong>Focus range</strong> is how far the screen can move and still look sharp, from text floating at 0.5 m to text at infinity. The glasses module needs a slot about that long to fine-tune focus.</p>
-        <p>The model uses thin-lens optics and traces rays through the lens and splitter edges. Real lenses blur a little toward the edges, so treat the numbers as a guide and confirm them on the optics bench.</p>
+        <p>The model uses thin-lens optics and traces rays from your pupil to the screen's edges and corners through the splitter and the lens. Real lenses blur a little toward the edges, so treat the numbers as a guide and confirm them on the optics bench.</p>
       </section>
     </div>
   </div>
@@ -234,39 +256,60 @@
   const O = window.Optics;
   const $ = (id) => document.getElementById(id);
 
+  // Each setup sits as close to the eye as its near edge allows (see O.safeEyeDistance).
   const PRESETS = [
-    { name: "Recommended", f: 60, lensD: 30, splitter: "plate", size: 25, plateH: 25 },
-    { name: "Roomier", f: 60, lensD: 30, splitter: "plate", size: 30, plateH: 22 },
-    { name: "Shorter module", f: 50, lensD: 30, splitter: "plate", size: 25, plateH: 25 },
+    { name: "Recommended", f: 60, lensD: 30, splitter: "plate", plateShape: "round", size: 25 },
+    { name: "Rectangular plate", f: 60, lensD: 30, splitter: "plate", plateShape: "rect", size: 35, plateH: 25 },
+    { name: "Roomiest", f: 60, lensD: 35, splitter: "plate", plateShape: "rect", size: 35, plateH: 25 },
+    { name: "Shorter module", f: 50, lensD: 30, splitter: "plate", plateShape: "round", size: 25 },
     { name: "15 mm cube", f: 40, lensD: 25, splitter: "cube", size: 15 },
     { name: "20 mm cube", f: 50, lensD: 30, splitter: "cube", size: 20 },
   ];
+  PRESETS.forEach((p) => { p.eyeToSplitter = O.safeEyeDistance(p.splitter, p.size); });
 
-  const state = { f: 60, lensD: 30, splitter: "plate", size: 25, plateH: 25, eyeToSplitter: 25, imageDist: 2000, shift: 0 };
+  const state = {
+    f: 60, lensD: 30, splitter: "plate", plateShape: "round", size: 25, plateH: 25, eyeToSplitter: 25,
+    imageDist: 2000, shift: 0, shiftV: 0,
+  };
+
+  const isPreset = (p) => p.f === state.f && p.lensD === state.lensD && p.splitter === state.splitter &&
+    p.size === state.size && Math.abs(p.eyeToSplitter - state.eyeToSplitter) < 0.05 &&
+    (p.splitter === "cube" || (p.plateShape === state.plateShape && (p.plateShape === "round" || p.plateH === state.plateH)));
 
   // ---------- controls ----------
   const presetBox = $("presets");
   PRESETS.forEach((p, i) => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "chip"; b.textContent = p.name; b.dataset.i = String(i);
-    b.addEventListener("click", () => { Object.assign(state, p, { plateH: p.plateH || state.plateH }); syncControls(); update(); });
+    b.addEventListener("click", () => { applyPreset(p); });
     presetBox.appendChild(b);
   });
 
+  function applyPreset(p) {
+    Object.assign(state, p);
+    syncControls(); update();
+  }
+
   function syncControls() {
+    const plate = state.splitter === "plate", round = plate && state.plateShape === "round";
+    $("size").max = plate ? 50 : 30;
     $("f").value = state.f; $("lensD").value = state.lensD; $("size").value = state.size;
     $("plateH").value = state.plateH; $("eye").value = state.eyeToSplitter; $("image").value = String(state.imageDist);
-    $("sp-plate").setAttribute("aria-pressed", String(state.splitter === "plate"));
-    $("sp-cube").setAttribute("aria-pressed", String(state.splitter === "cube"));
-    $("plateH-field").hidden = state.splitter !== "plate";
-    $("size-l").textContent = state.splitter === "plate" ? "Plate width" : "Cube side";
-    $("size-help").textContent = state.splitter === "plate" ? "The side that tilts 45° across the light." : "Glass cubes come in 10, 12.7, 15, 20 and 25 mm.";
-    presetBox.querySelectorAll(".chip").forEach((b) => {
-      const p = PRESETS[+b.dataset.i];
-      const same = p.f === state.f && p.lensD === state.lensD && p.splitter === state.splitter && p.size === state.size &&
-        (p.splitter === "cube" || p.plateH === state.plateH) && state.eyeToSplitter === 25;
-      b.setAttribute("aria-pressed", String(same));
-    });
+    $("sp-plate").setAttribute("aria-pressed", String(plate));
+    $("sp-cube").setAttribute("aria-pressed", String(!plate));
+    $("sh-round").setAttribute("aria-pressed", String(round));
+    $("sh-rect").setAttribute("aria-pressed", String(plate && !round));
+    $("shape-field").hidden = !plate;
+    $("plateH-field").hidden = !plate || round;
+    $("size-l").textContent = !plate ? "Cube side" : round ? "Plate diameter" : "Plate width";
+    $("size-help").textContent = !plate ? "Glass cubes come in 10, 12.7, 15, 20 and 25 mm."
+      : round ? "Round plates are sold by diameter, often 25 mm (1 inch)."
+      : "The side that tilts 45° across the light. It goes horizontal.";
+    const safe = O.safeEyeDistance(state.splitter, state.size);
+    $("eye-safe").hidden = Math.abs(safe - state.eyeToSplitter) < 0.05;
+    $("eye-safe").textContent = `Use ${fmt(safe)} mm`;
+    $("eye-safe").dataset.eye = String(safe);
+    presetBox.querySelectorAll(".chip").forEach((b) => b.setAttribute("aria-pressed", String(isPreset(PRESETS[+b.dataset.i]))));
   }
 
   [["f", "f"], ["lensD", "lensD"], ["size", "size"], ["plateH", "plateH"], ["eye", "eyeToSplitter"]].forEach(([id, key]) => {
@@ -278,7 +321,16 @@
     if (state.splitter === "cube" && state.size > 25) state.size = 20;
     syncControls(); update();
   }));
+  document.querySelectorAll("[data-shape]").forEach((b) => b.addEventListener("click", () => {
+    state.plateShape = b.dataset.shape;
+    syncControls(); update();
+  }));
+  $("eye-safe").addEventListener("click", (e) => {
+    state.eyeToSplitter = parseFloat(e.target.dataset.eye);
+    syncControls(); update();
+  });
   $("shift").addEventListener("input", (e) => { state.shift = parseFloat(e.target.value); $("shift-out").textContent = fmtShift(state.shift); drawView(last); });
+  $("shiftV").addEventListener("input", (e) => { state.shiftV = parseFloat(e.target.value); $("shiftV-out").textContent = fmtShift(state.shiftV); drawView(last); });
 
   const fmt = (x, d = 1) => x.toFixed(d);
   const fmtShift = (x) => (x === 0 ? "0 mm" : (x > 0 ? "+" : "−") + Math.abs(x).toFixed(1) + " mm");
@@ -286,9 +338,11 @@
   // ---------- verdict and readings ----------
   function grade(r) {
     const vis = Math.min(r.visibleH, r.visibleV);
+    const box = Math.min(r.eyeboxH, r.eyeboxV);
     if (vis < 0.999) return ["bad", "Edges cut off", "Even with your eye centered, part of the screen is blocked. Try a bigger splitter, a bigger lens or a longer focal length."];
-    if (r.eyeboxH < 2) return ["warn", "Very tight", "The whole screen fits, but the edges dim if the glasses move even 1 mm sideways."];
-    if (r.eyeboxH < 4) return ["warn", "Tight", "The whole screen fits. Small shifts of the glasses dim the left or right edge a little."];
+    if (r.nearEdge < O.NEAR_EDGE_MIN) return ["warn", "Near your eyelashes", `The splitter's near edge is only ${fmt(r.nearEdge)} mm from your pupil. Move the splitter out to ${fmt(O.safeEyeDistance(r.setup.splitter, r.setup.size))} mm; the numbers here assume it fits closer than it can.`];
+    if (box < 2) return ["warn", "Very tight", "The whole screen fits, but an edge or corner dims if the glasses move even 1 mm."];
+    if (box < 4) return ["warn", "Tight", "The whole screen fits. Small shifts of the glasses dim an edge or corner a little."];
     if (r.fovH > 30) return ["warn", "Very wide", "Everything fits, but the image covers a big part of that eye's view."];
     return ["good", "Good fit", "The whole screen is visible, with room for the glasses to move a little."];
   }
@@ -300,17 +354,21 @@
   function renderReadings(r) {
     const [cls, label, text] = grade(r);
     $("pill").className = "pill " + cls; $("pill").textContent = label; $("verdict").textContent = text;
-    const eyeCls = r.eyeboxH >= 4 ? "good" : r.eyeboxH >= 2 ? "warn" : "bad";
+    const box = Math.min(r.eyeboxH, r.eyeboxV);
+    const eyeCls = box >= 4 ? "good" : box >= 2 ? "warn" : "bad";
     const visCls = Math.min(r.visibleH, r.visibleV) >= 0.999 ? "good" : "bad";
+    const nearOk = r.nearEdge >= O.NEAR_EDGE_MIN;
     $("readings").innerHTML = [
       reading("Screen to lens", fmt(r.screenToLens) + " mm", `sharp from ${fmt(r.focusRange[0])} to ${fmt(r.focusRange[1])} mm`),
       reading("Image size", `${fmt(r.fovH)}° × ${fmt(r.fovV)}°`, "how much of your view the screen covers"),
       reading("Text size", fmt(r.textMmAt1m, 0) + " mm", "capitals look this tall on a sign 1 m away"),
-      reading("Eye box", `${fmt(r.eyeboxH)} × ${fmt(r.eyeboxV)} mm`, "sideways × up/down before edges dim", eyeCls),
+      reading("Eye box", `${fmt(r.eyeboxH)} × ${fmt(r.eyeboxV)} mm`, `sideways × up/down with no dimming; ${fmt(r.eyeboxHalfH)} × ${fmt(r.eyeboxHalfV)} mm before an edge is half as bright`, eyeCls),
       reading("Visible, eye centered", `${Math.round(r.visibleH * 100)}% × ${Math.round(r.visibleV * 100)}%`, "of the screen's width × height", visCls),
+      reading("Near edge", fmt(r.nearEdge) + " mm", nearOk ? "from your pupil; 16 mm or more clears your eyelashes"
+        : `from your pupil, too close to your eyelashes; move the splitter ${fmt(O.NEAR_EDGE_TARGET - r.nearEdge)} mm out`, nearOk ? "good" : "warn"),
       reading("Screen → splitter", fmt(r.pathLength, 0) + " mm", "length of the light path in the module"),
       reading("Lens → splitter", fmt(r.setup.lensToSplitter) + " mm", "as close as the parts allow"),
-      reading("Splitter weight", fmt(r.splitterGrams) + " g", r.setup.splitter === "cube" ? "solid glass" : "1 mm glass"),
+      reading("Splitter weight", fmt(r.splitterGrams) + " g", r.setup.splitter === "cube" ? "solid glass" : "1 mm thick glass"),
     ].join("");
   }
 
@@ -369,19 +427,17 @@
     const toX = (slope) => cx + (Math.atan(slope) * 180 / Math.PI) * pxPerDeg;
     const toY = (slope) => cy - (Math.atan(slope) * 180 / Math.PI) * pxPerDeg;
     const s = r.setup;
-    const colB = new Float32Array(128), rowB = new Float32Array(64);
     const colX = new Float32Array(129), rowY = new Float32Array(65);
     for (let c = 0; c <= 128; c++) colX[c] = toX(((c - 64) / 64) * r.slopeH);
     for (let y = 0; y <= 64; y++) rowY[y] = toY(((32 - y) / 32) * r.slopeV);
-    for (let c = 0; c < 128; c++) colB[c] = O.brightness(s, state.shift, ((c + 0.5 - 64) / 64) * r.slopeH, true, r.lensZ);
-    for (let y = 0; y < 64; y++) rowB[y] = O.brightness(s, 0, ((32 - y - 0.5) / 32) * r.slopeV, false, r.lensZ);
 
     g.save();
     g.shadowColor = "rgba(190,230,255,0.7)"; g.shadowBlur = 4;
     for (let y = 0; y < 64; y++) {
+      const sv = ((32 - y - 0.5) / 32) * r.slopeV;
       for (let c = 0; c < 128; c++) {
         if (!hud[y * 128 + c]) continue;
-        const a = colB[c] * rowB[y];
+        const a = O.brightness(s, state.shift, state.shiftV, ((c + 0.5 - 64) / 64) * r.slopeH, sv, r.lensZ);
         if (a <= 0.02) continue;
         g.fillStyle = `rgba(236,246,255,${a})`;
         g.fillRect(colX[c], rowY[y], Math.max(1, colX[c + 1] - colX[c] - 0.3), Math.max(1, rowY[y + 1] - rowY[y] - 0.3));
@@ -472,16 +528,16 @@
   // ---------- comparison table ----------
   function renderCompare() {
     $("compare").innerHTML = PRESETS.map((p, i) => {
-      const r = O.analyze(Object.assign({ eyeToSplitter: 25, imageDist: 2000 }, p));
-      const sp = p.splitter === "cube" ? `${p.size} mm cube` : `${p.size} × ${p.plateH} plate`;
-      return `<tr data-i="${i}"><td><strong>${p.name}</strong><br><span class="spec">f ${p.f} · ${p.lensD} mm lens · ${sp}</span></td>
+      const r = O.analyze(Object.assign({ imageDist: 2000 }, p));
+      const sp = p.splitter === "cube" ? `${p.size} mm cube` : p.plateShape === "round" ? `${p.size} mm round plate` : `${p.size} × ${p.plateH} plate`;
+      return `<tr data-i="${i}"><td><strong>${p.name}</strong><br><span class="spec">f ${p.f} · ${p.lensD} mm lens · ${sp} · eye ${fmt(p.eyeToSplitter)}</span></td>
         <td class="num">${fmt(r.fovH, 0)}° × ${fmt(r.fovV, 0)}°</td><td class="num">${fmt(r.textMmAt1m, 0)} mm</td>
-        <td class="num">${fmt(r.eyeboxH)} × ${fmt(r.eyeboxV)} mm</td><td class="num">${fmt(r.pathLength, 0)} mm</td>
-        <td class="num">${fmt(r.splitterGrams)} g</td></tr>`;
+        <td class="num">${fmt(r.eyeboxH)} × ${fmt(r.eyeboxV)} mm<br><span class="spec">${fmt(r.eyeboxHalfH)} × ${fmt(r.eyeboxHalfV)} half bright</span></td>
+        <td class="num">${fmt(r.pathLength, 0)} mm</td><td class="num">${fmt(r.splitterGrams)} g</td></tr>`;
     }).join("");
     $("compare").querySelectorAll("tr").forEach((tr) => tr.addEventListener("click", () => {
-      Object.assign(state, PRESETS[+tr.dataset.i], { eyeToSplitter: 25 });
-      syncControls(); update(); window.scrollTo({ top: 0, behavior: "smooth" });
+      applyPreset(PRESETS[+tr.dataset.i]);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }));
   }
 
@@ -492,10 +548,10 @@
     $("lensD-out").textContent = state.lensD + " mm";
     $("size-out").textContent = state.size + " mm";
     $("plateH-out").textContent = state.plateH + " mm";
-    $("eye-out").textContent = state.eyeToSplitter + " mm";
+    $("eye-out").textContent = fmt(state.eyeToSplitter) + " mm";
     last = O.analyze({
-      f: state.f, lensD: state.lensD, splitter: state.splitter, size: state.size, plateH: state.plateH,
-      eyeToSplitter: state.eyeToSplitter, imageDist: state.imageDist,
+      f: state.f, lensD: state.lensD, splitter: state.splitter, plateShape: state.plateShape, size: state.size,
+      plateH: state.plateH, eyeToSplitter: state.eyeToSplitter, imageDist: state.imageDist,
     });
     renderReadings(last);
     drawView(last);

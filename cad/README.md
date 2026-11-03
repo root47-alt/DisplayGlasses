@@ -60,7 +60,7 @@ Open `optics_bench.scad` in OpenSCAD and show **Window → Customizer**. Enter y
 
 ![Glasses draft on a head outline](images/glasses.png)
 
-`glasses.scad` is a first full design: a printed frame with the display module in place of the right lens, and a battery pod on the right temple. It's sized from the optics calculator (30 mm lens with a 60 mm focal length, 25 mm plate splitter 25 mm in front of your pupil). **Treat it as a draft:** run the optics bench first, put your numbers and face measurements into the Customizer, then print.
+`glasses.scad` is a first full design: a printed frame with the display module in place of the right lens, and a battery pod on the right temple. It's sized from the optics calculator (30 mm lens with a 60 mm focal length, 25 mm round plate splitter 25 mm in front of your pupil). **Treat it as a draft:** run the optics bench first, put your numbers and face measurements into the Customizer, then print.
 
 ![Every glasses part as it prints](images/glasses_parts.png)
 
@@ -90,6 +90,7 @@ You also need two M2 × 8 screws (brow bar to module), and two M2 × 10 screws o
 In the Customizer, set:
 - **Your face:** pupil distance (an optician or a phone app can measure it), frame width, temple length
 - **Optics:** the screen-to-lens and lens-to-splitter distances from the bench, and your lens's diameter and thickness
+- **Splitter:** the module holds a 25 mm round plate up to about 1.4 mm thick. A rectangular plate (like 35 × 25 mm) needs a change to the module, so ask before printing.
 
 ### Put it together
 
