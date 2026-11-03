@@ -13,7 +13,8 @@
 #include "notice.h"
 
 // Light bouncing off the beam splitter flips the picture. Pick whichever mode
-// makes text read correctly through your optics (long press cycles them).
+// makes text read correctly through your optics (holding the button about
+// 5 seconds cycles them).
 enum class Mirror : uint8_t { None = 0, LeftRight, UpDown, Rotate180, Count };
 const char* mirrorName(Mirror m);
 
@@ -44,6 +45,12 @@ class Hud {
   void toast(const std::string& message, uint32_t ms = 1500);
   // Clears the screen and shows two centered lines right away.
   void splash(const char* title, const char* detail);
+  // Two centered lines that stay on screen, over everything else, until
+  // clearPrompt(). Shown while the button is held: "Turn off" / "let go now".
+  void prompt(const std::string& title, const std::string& detail);
+  void clearPrompt();
+  // Turns the screen off, before the glasses go to sleep.
+  void sleep();
   // Redraw on the next loop(), e.g. after the time was corrected.
   void refresh() { dirty_ = true; }
 
@@ -69,6 +76,7 @@ class Hud {
   void drawHome(uint32_t now);
   void drawNotice();
   void drawToast();
+  void drawTwoLines(const std::string& title, const std::string& detail);
   void drawCentered(const std::string& s, int baseline);
   std::string fit(const std::string& s, int maxWidth);
   int textWidth(const std::string& s);
@@ -97,6 +105,10 @@ class Hud {
   std::string toast_;
   uint32_t toastUntil_ = 0;
   bool toastActive_ = false;
+
+  std::string promptTitle_;
+  std::string promptDetail_;
+  bool prompting_ = false;
 
   bool dirty_ = true;
 };

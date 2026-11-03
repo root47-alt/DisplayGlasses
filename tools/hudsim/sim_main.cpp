@@ -19,6 +19,7 @@ namespace sim {
 uint32_t now_ms = 1000;
 uint8_t frame[1024];
 uint32_t frames_sent = 0;
+uint8_t power_save = 0;
 }  // namespace sim
 
 TwoWire Wire;
@@ -141,6 +142,22 @@ int main(int argc, char** argv) {
     run(hud, 300);
     hud.setMirror(Mirror::None);
     run(hud, 2000);
+
+    scene("hold_off");
+    hud.prompt("Turn off", "let go now");
+    run(hud, 300);
+    scene("hold_flip");
+    hud.prompt("Flip image", "let go now");
+    run(hud, 300);
+    hud.clearPrompt();
+    run(hud, 200);
+  }
+  {
+    scene("turning_off");
+    Hud hud;
+    hud.begin(0, 0);
+    hud.splash("Turning off", "press to turn on");
+    capture(true);
   }
   {
     scene("demo");

@@ -7,6 +7,7 @@
 #include "ancs.h"
 #include "clock.h"
 #include "notice.h"
+#include "press.h"
 #include "text.h"
 
 void setUp() {}
@@ -237,6 +238,85 @@ void test_route_generic_and_calls() {
   TEST_ASSERT_EQUAL_INT(static_cast<int>(notice::Route::Ignore), static_cast<int>(r.route));
 }
 
+// ---------- button presses ----------
+
+// Holds the button down (or leaves it up) from `from` to `to` ms, reading it
+// every 10 ms like loop() does, and returns the events in order.
+static std::vector<press::Event> hold(press::Tracker& t, uint32_t from, uint32_t to, bool down) {
+  std::vector<press::Event> events;
+  for (uint32_t now = from; now != to; now += 10) {  // != so it also works across the millis() wrap
+    const press::Event e = t.update(now, down);
+    if (e != press::Event::None) events.push_back(e);
+  }
+  return events;
+}
+
+static void assertEvents(const std::vector<press::Event>& expected, const std::vector<press::Event>& actual) {
+  TEST_ASSERT_EQUAL_UINT32(expected.size(), actual.size());
+  for (size_t i = 0; i < expected.size(); ++i) {
+    TEST_ASSERT_EQUAL_INT(static_cast<int>(expected[i]), static_cast<int>(actual[i]));
+  }
+}
+
+using press::Event;
+
+void test_press_short_and_slow_presses() {
+  press::Tracker t;
+  t.begin(0, false);
+  assertEvents({}, hold(t, 0, 100, false));
+  assertEvents({}, hold(t, 100, 250, true));  // a quick tap
+  assertEvents({Event::Short}, hold(t, 250, 400, false));
+  assertEvents({}, hold(t, 400, 2300, true));  // 1.9 s still counts as a press
+  assertEvents({Event::Short}, hold(t, 2300, 2500, false));
+}
+
+void test_press_hold_to_turn_off() {
+  press::Tracker t;
+  t.begin(0, false);
+  assertEvents({Event::ShowOff}, hold(t, 0, 3000, true));
+  assertEvents({Event::Off}, hold(t, 3000, 3200, false));
+}
+
+void test_press_hold_longer_to_flip() {
+  press::Tracker t;
+  t.begin(0, false);
+  assertEvents({Event::ShowOff, Event::ShowFlip}, hold(t, 0, 6000, true));
+  assertEvents({Event::Flip}, hold(t, 6000, 6200, false));
+}
+
+void test_press_hold_eight_seconds_to_forget() {
+  press::Tracker t;
+  t.begin(0, false);
+  assertEvents({Event::ShowOff, Event::ShowFlip, Event::Forget}, hold(t, 0, 12000, true));
+  assertEvents({}, hold(t, 12000, 12200, false));  // letting go afterwards does nothing more
+}
+
+void test_press_from_startup_is_ignored() {
+  // The press that turned the glasses on is still held when they start up.
+  press::Tracker t;
+  t.begin(0, true);
+  assertEvents({}, hold(t, 0, 4000, true));  // no "Turn off" while it's still held
+  assertEvents({}, hold(t, 4000, 4200, false));
+  assertEvents({}, hold(t, 4200, 4300, true));
+  assertEvents({Event::Short}, hold(t, 4300, 4500, false));
+}
+
+void test_press_ignores_bounces() {
+  press::Tracker t;
+  t.begin(0, false);
+  assertEvents({}, hold(t, 0, 20, false));
+  assertEvents({}, hold(t, 20, 40, true));  // a 20 ms blip
+  assertEvents({}, hold(t, 40, 500, false));
+}
+
+void test_press_works_across_the_millis_wrap() {
+  press::Tracker t;
+  const uint32_t start = 0u - 1000u;  // 1 s before millis() wraps around to 0
+  t.begin(start, false);
+  assertEvents({Event::ShowOff}, hold(t, start, start + 3000, true));
+  assertEvents({Event::Off}, hold(t, start + 3000, start + 3200, false));
+}
+
 int main(int, char**) {
   UNITY_BEGIN();
   RUN_TEST(test_sanitize_keeps_latin1_accents);
@@ -262,5 +342,12 @@ int main(int, char**) {
   RUN_TEST(test_route_weather_from_shortcuts);
   RUN_TEST(test_route_claude_answer);
   RUN_TEST(test_route_generic_and_calls);
+  RUN_TEST(test_press_short_and_slow_presses);
+  RUN_TEST(test_press_hold_to_turn_off);
+  RUN_TEST(test_press_hold_longer_to_flip);
+  RUN_TEST(test_press_hold_eight_seconds_to_forget);
+  RUN_TEST(test_press_from_startup_is_ignored);
+  RUN_TEST(test_press_ignores_bounces);
+  RUN_TEST(test_press_works_across_the_millis_wrap);
   return UNITY_END();
 }

@@ -26,5 +26,6 @@
 #define SCREEN_BRIGHTNESS 255
 
 // Mirror mode on first boot (0 none, 1 left-right, 2 up-down, 3 rotate 180).
-// A long press on the button cycles through them and the choice is saved.
+// Holding the button about 5 seconds cycles through them, and the choice is
+// saved.
 #define DEFAULT_MIRROR 0

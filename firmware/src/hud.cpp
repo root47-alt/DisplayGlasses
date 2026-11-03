@@ -130,12 +130,26 @@ void Hud::toast(const std::string& message, uint32_t ms) {
 void Hud::splash(const char* title, const char* detail) {
   if (!present_) return;
   oled_.clearBuffer();
-  oled_.setFont(kFontBold);
-  drawCentered(fit(title, kWidth - 4), 28);
-  oled_.setFont(kFontText);
-  drawCentered(fit(detail, kWidth - 4), 44);
+  drawTwoLines(title, detail);
   oled_.sendBuffer();
   dirty_ = true;  // the next loop() redraws the normal screen
+}
+
+void Hud::prompt(const std::string& title, const std::string& detail) {
+  promptTitle_ = title;
+  promptDetail_ = detail;
+  prompting_ = true;
+  dirty_ = true;
+}
+
+void Hud::clearPrompt() {
+  if (!prompting_) return;
+  prompting_ = false;
+  dirty_ = true;
+}
+
+void Hud::sleep() {
+  if (present_) oled_.setPowerSave(1);
 }
 
 void Hud::onShortPress() {
@@ -228,7 +242,9 @@ void Hud::loop() {
   if (!dirty_ || !present_) return;
   dirty_ = false;
   oled_.clearBuffer();
-  if (toastActive_) {
+  if (prompting_) {
+    drawTwoLines(promptTitle_, promptDetail_);
+  } else if (toastActive_) {
     drawToast();
   } else if (showing_) {
     drawNotice();
@@ -320,6 +336,14 @@ void Hud::drawToast() {
   const int y = (64 - h) / 2;
   oled_.drawRFrame(x, y, w, h, 4);
   oled_.drawUTF8(x + 7, y + 13, msg.c_str());
+}
+
+// A bold title and a line of detail, centered.
+void Hud::drawTwoLines(const std::string& title, const std::string& detail) {
+  oled_.setFont(kFontBold);
+  drawCentered(fit(title, kWidth - 4), 28);
+  oled_.setFont(kFontText);
+  drawCentered(fit(detail, kWidth - 4), 44);
 }
 
 void Hud::drawCentered(const std::string& s, int baseline) {

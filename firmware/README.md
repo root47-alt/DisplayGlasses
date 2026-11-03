@@ -43,13 +43,17 @@ pio device monitor
 
 ## Button
 
-The Feather's **BOOT** button is the only button (any button wired from a pin to GND works; set `BUTTON_PIN` in `src/config.h`).
+The glasses have one button: **SW38** on the Feather V2, **BOOT** on the ESP32-S3 Feather. Any button wired from a pin to GND also works; set `BUTTON_PIN` in `src/config.h`.
 
 | Press | Does |
 |---|---|
 | Short | Dismiss the notification on screen, or bring back the last one |
-| Hold 1–2 s, then release | Cycle the mirror mode (saved) |
+| Hold until the screen says **Turn off** (2 s), then let go | Turn the glasses off |
+| Keep holding until it says **Flip image** (5 s), then let go | Cycle the mirror mode (saved) |
 | Hold 8 s | Forget the paired iPhone and restart |
+| Press while off | Turn the glasses back on |
+
+Off is the ESP32's deep sleep: the screen and Bluetooth are off and the board draws so little that a charged battery lasts weeks. The battery still charges over USB while the glasses are off. Turning them back on starts them up as if you'd just plugged in the battery, and they reconnect to the iPhone.
 
 ## Try it in the simulator
 
@@ -91,10 +95,12 @@ Both need a C++ compiler on your computer: Xcode command line tools on a Mac, `b
 | `src/hud.*` | Draws the screens: clock, notification pop-ups, toasts |
 | `src/iphone_link.*` | Bluetooth pairing and the iPhone notification and time services, on their own task so the screen never waits |
 | `src/demo.*` | Fake notifications for demo mode |
-| `src/button.h` | Short, long and very long presses |
+| `src/button.h` | Reads the button |
+| `src/power.*` | Turning off (deep sleep) and waking up on a button press |
 | `lib/core/text.*` | Cleans up and word-wraps text for the font |
 | `lib/core/clock.*` | Date and time math |
 | `lib/core/ancs.*` | Apple's notification protocol, byte by byte |
 | `lib/core/notice.*` | Decides what each notification becomes (pop-up, weather line, Claude answer) |
+| `lib/core/press.*` | What each press and hold of the button means |
 | `test/test_core/` | Unit tests for `lib/core` |
 | `scripts/merge_bin.py` | Makes `merged.bin` after each build, for the browser flasher |

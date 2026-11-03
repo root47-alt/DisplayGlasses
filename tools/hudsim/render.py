@@ -33,6 +33,9 @@ OVERVIEW = [
     ("call", 0, "Incoming call"),
     ("long_title", 0, "Long title wraps (accents kept)"),
     ("mirror_toast", 0, "Mirrored for the beam splitter"),
+    ("hold_off", 0, "Hold the button: turn off"),
+    ("hold_flip", 0, "Keep holding: flip image"),
+    ("turning_off", 0, "Turning off"),
 ]
 
 

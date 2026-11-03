@@ -10,6 +10,7 @@
 namespace sim {
 extern uint8_t frame[1024];   // 8 pages x 128 columns; bit 0 of each byte is the top pixel
 extern uint32_t frames_sent;
+extern uint8_t power_save;  // 1 while the screen is turned off
 }
 
 class U8G2 {
@@ -19,8 +20,12 @@ class U8G2 {
   bool begin() {
     u8g2_InitDisplay(&u8g2);
     u8g2_ClearDisplay(&u8g2);
-    u8g2_SetPowerSave(&u8g2, 0);
+    setPowerSave(0);
     return true;
+  }
+  void setPowerSave(uint8_t on) {
+    u8g2_SetPowerSave(&u8g2, on);
+    sim::power_save = on;
   }
   void setDisplayRotation(const u8g2_cb_t* cb) { u8g2_SetDisplayRotation(&u8g2, cb); }
   void setContrast(uint8_t value) { u8g2_SetContrast(&u8g2, value); }

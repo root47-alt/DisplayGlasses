@@ -11,6 +11,7 @@
 #include "config.h"
 #include "hud.h"
 #include "notice.h"
+#include "power.h"
 
 #ifdef DEMO_MODE
 #include "demo.h"
@@ -45,10 +46,36 @@ void cycleMirror() {
   hud.toast(std::string("Mirror: ") + mirrorName(next));
 }
 
+// Deep sleep until the button is pressed again, which starts the glasses up
+// from the beginning (see power.h).
+void turnOff() {
+  if (!power::canWakeFrom(BUTTON_PIN)) {
+    hud.toast("Can't turn off");  // the button's pin can't wake the chip
+    return;
+  }
+  Serial.println("Turning off");
+  hud.splash("Turning off", "press to turn on");
+  delay(1500);
+  hud.sleep();
+  power::sleepUntilPressed(BUTTON_PIN);
+}
+
+void forgetPhone() {
+#ifdef DEMO_MODE
+  hud.toast("Demo: no iPhone");
+#else
+  hud.splash("Forgot iPhone", "restarting...");
+  iphone::forget();
+  delay(1500);
+  ESP.restart();
+#endif
+}
+
 }  // namespace
 
 void setup() {
   Serial.begin(115200);
+  power::afterWake(BUTTON_PIN);
 #ifdef NEOPIXEL_POWER
   digitalWrite(NEOPIXEL_POWER, LOW);  // the Feather's RGB LED isn't used; save the power
 #endif
@@ -96,16 +123,23 @@ void loop() {
     case Button::Event::Short:
       hud.onShortPress();
       break;
-    case Button::Event::Long:
+    case Button::Event::ShowOff:
+      hud.prompt("Turn off", "let go now");
+      break;
+    case Button::Event::Off:
+      hud.clearPrompt();
+      turnOff();
+      break;
+    case Button::Event::ShowFlip:
+      hud.prompt("Flip image", "let go now");
+      break;
+    case Button::Event::Flip:
+      hud.clearPrompt();
       cycleMirror();
       break;
-    case Button::Event::VeryLong:
-#ifndef DEMO_MODE
-      hud.splash("Forgot iPhone", "restarting...");
-      iphone::forget();
-      delay(1500);
-      ESP.restart();
-#endif
+    case Button::Event::Forget:
+      hud.clearPrompt();
+      forgetPhone();
       break;
     case Button::Event::None:
       break;

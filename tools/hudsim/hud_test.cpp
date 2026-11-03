@@ -16,6 +16,7 @@ namespace sim {
 uint32_t now_ms = 1000;
 uint8_t frame[1024];
 uint32_t frames_sent = 0;
+uint8_t power_save = 0;
 }  // namespace sim
 
 TwoWire Wire;
@@ -155,6 +156,38 @@ void toast_takes_over_then_clears() {
   CHECK(snapshot() == home);
 }
 
+void prompt_stays_until_cleared() {
+  clockutil::Clock clock;
+  clock.set(at(9, 41), sim::now_ms);
+  Hud hud;
+  hud.begin(0, 0);
+  hud.setClock(&clock, false);
+  hud.setLink(Link::Ready);
+  advance(hud, 100);
+  const std::vector<uint8_t> home = snapshot();
+  hud.toast("Mirror: none", 1500);
+  hud.prompt("Turn off", "let go now");
+  advance(hud, 100);
+  const std::vector<uint8_t> shown = snapshot();
+  CHECK(shown != home);
+  CHECK(litIn(shown, 0, 0, 127, 15) == 0);   // nothing else on screen: no clock, no toast box
+  CHECK(litIn(shown, 0, 19, 127, 29) > 20);  // the title
+  CHECK(litIn(shown, 0, 35, 127, 45) > 20);  // the detail line
+  advance(hud, 5000);                        // outlasts the toast
+  CHECK(snapshot() == shown);
+  hud.clearPrompt();
+  advance(hud, 100);
+  CHECK(snapshot() == home);
+}
+
+void sleep_turns_the_screen_off() {
+  Hud hud;
+  hud.begin(0, 0);
+  CHECK(sim::power_save == 0);
+  hud.sleep();
+  CHECK(sim::power_save == 1);
+}
+
 void splash_text_fits_on_screen() {
   Hud hud;
   hud.begin(0, 0);
@@ -236,6 +269,8 @@ int main() {
       {"removed while waiting", removed_while_waiting},
       {"long text scrolls then closes", long_text_scrolls_then_closes},
       {"toast takes over then clears", toast_takes_over_then_clears},
+      {"prompt stays until cleared", prompt_stays_until_cleared},
+      {"sleep turns the screen off", sleep_turns_the_screen_off},
       {"splash text fits on screen", splash_text_fits_on_screen},
       {"mirror left-right is an exact mirror", mirror_left_right_is_an_exact_mirror},
       {"clock redraws when the hour changes", clock_redraws_when_the_hour_changes},

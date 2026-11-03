@@ -16,7 +16,7 @@ The home screen switches from **pairing** to showing the time, and the glasses s
 - *DisplayGlasses isn't listed:* restart the glasses and wait 10 seconds. If it still doesn't appear, install the free **nRF Connect** app, connect to DisplayGlasses there once and accept the pairing prompt. After that, iOS reconnects on its own.
 - *You get app names but no message text:* set **Settings → Notifications → Show Previews** to **Always**.
 - *Notifications stopped:* open **Settings → Bluetooth**, tap ⓘ next to DisplayGlasses, and check that **Share System Notifications** is on.
-- *Start over:* hold the button for 8 seconds (the glasses forget the iPhone and restart), then on the iPhone tap ⓘ next to DisplayGlasses → **Forget This Device**, and pair again.
+- *Start over:* hold the button for 8 seconds, past the **Turn off** and **Flip image** messages (the glasses forget the iPhone and restart), then on the iPhone tap ⓘ next to DisplayGlasses → **Forget This Device**, and pair again.
 
 ## 2. Choose which notifications reach the glasses
 

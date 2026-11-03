@@ -21,7 +21,7 @@ Your eye can't focus on a screen 2 cm away, so the glasses use two optical trick
         eye       / = beam splitter
 ```
 
-OLED black pixels give off no light, so only the text shows up. The reflection mirrors the image; a long press on the button flips it back.
+OLED black pixels give off no light, so only the text shows up. The reflection mirrors the image; holding the button about 5 seconds flips it back.
 
 ### Glasses ↔ iPhone
 
@@ -76,6 +76,7 @@ web/        the project website: browser flasher and home page
 ## Status
 
 - [x] Firmware: home screen, notification pop-ups with auto-scroll, mirror modes, demo mode
+- [x] Turn off with the button (hold 2 s), and back on with a press
 - [x] iPhone link: pairing, notifications, phone time
 - [x] Unit tests for the core logic, plus screen tests that check the drawn pixels
 - [x] Independent code review; all findings fixed (calls clear when they end, Bluetooth work on its own task, reconnect edge cases)
