@@ -334,8 +334,13 @@ module plate_holder() {
 // gentle pressure and stay put when you let go.
 
 module fit_test() {
-  rail(40, false);
-  translate([10, rail_w + 8 + base_w / 2, 0]) carriage_base(20, 10);
+  // A short, narrow piece of rail: just the ridge and the strip a holder
+  // rides on, so it prints quickly.
+  intersection() {
+    translate([0, 0, -(rail_h - 3)]) rail(30, false);
+    translate([-1, ridge_y - 10, 0]) cube([32, 20, rail_h + ridge_h]);
+  }
+  translate([5, ridge_y + 10 + 6 + base_w / 2, 0]) carriage_base(20, 10);
 }
 
 // --------------------------------------------------------------- assembly
