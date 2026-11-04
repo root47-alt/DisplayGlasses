@@ -43,7 +43,7 @@ No glasses to buy: the whole frame is printed ([cad/README.md](../cad/README.md#
 | Part | Why | Price |
 |---|---|---|
 | PLA or PETG filament, black if you can | All the printed parts, about 100 g including the optics bench (PETG is tougher and handles a hot car better). Black soaks up stray light inside the display module, so the text looks crisper | — |
-| M2 screws: two 8 mm and two 10 mm long | The 8 mm ones hold the brow bar to the display module; the 10 mm ones are the temple hinges (2 mm pins also work). A small M2 assortment kit covers it | ≈ $5 |
+| M2 screws, 10 mm long: four | Two hold the brow bar to the display module; two are the temple hinges. A small M2 assortment kit covers it | ≈ $5 |
 
 **Total:** about $46 for the electronics, $50–80 for the optics (nothing if you can borrow them) and about $5 for screws, plus shipping.
 

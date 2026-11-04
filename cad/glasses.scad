@@ -55,6 +55,9 @@ $fn = 64;
 eps = 0.01;
 
 // Adafruit 0.96" OLED (#326)
+// NOT READY: the real board is 29.21 x 31.75 mm, counting two mounting ears
+// (see cad/optics_bench.scad). The module and its screen sled still assume a
+// plain 29.2 x 26.7 mm board and must be redone before they're printed.
 oled_w = 29.2;     // along Y in the module (the screen's long side)
 oled_h = 26.7;     // along Z
 oled_stack = 6.2;  // glass + board + connectors
@@ -98,6 +101,7 @@ x_temple_l = x_left_end + 4;            // outer face of the left temple
 x_temple_r = x_mid + frame_width / 2 - 4 - temple_t;  // inner face of the right temple, mirroring the left
 joint_x = [22, 34];                     // the brow bar's screw slots (nominal pupil distance)
 y_joint = fy0;                          // ...and the line they're on: the middle of the brow bar's block
+z_brow = tiz + wall + 0.2;              // the brow bar sits just above the module's top
 
 // Both temple sockets end at the module's back wall, so the two temples sit
 // the same distance back and can be printed the same.
@@ -182,8 +186,11 @@ module temple_slot(x0, a) {
   pivot = [x0 + temple_t / 2, y_pin, 0];
   translate(pivot) rotate([0, 0, a]) translate(-pivot) {
     // runs 2 mm past the back of the socket so the turned slot still opens cleanly
-    translate([x0 - clearance, y_socket - 8, 3 - clearance]) cube([temple_t + 2 * clearance, 8, temple_h + 2 * clearance]);
-    translate([x0 - 5, y_pin, 3 + temple_h / 2]) rotate([0, 90, 0]) cylinder(d = 2.1, h = temple_t + 10);
+    // 0.3 mm deeper than the tongue, so the pin, not the tongue's tip, sets where it sits
+    translate([x0 - clearance, y_socket - 8, 3 - clearance]) cube([temple_t + 2 * clearance, 8.3, temple_h + 2 * clearance]);
+    // 1.8 mm through the socket's walls, so an M2 screw cuts its own thread
+    // (or a piece of 1.75 mm filament fits snugly); the tongue's hole is 2.1
+    translate([x0 - 5, y_pin, 3 + temple_h / 2]) rotate([0, 90, 0]) cylinder(d = 1.8, h = temple_t + 10);
   }
 }
 
@@ -271,8 +278,8 @@ module frame_profile() {
     translate([x_mid, 0]) circle(r = bridge_width / 2);
   }
   // nose-side post and brow bar over the right eye
-  translate([x_post, 5]) square([3.5, 19]);
-  translate([x_post, 18]) square([joint_x[1] + 8 - x_post, 6]);
+  translate([x_post, 5]) square([3.5, z_brow + 6 - 5]);
+  translate([x_post, z_brow]) square([joint_x[1] + 8 - x_post, 6]);
   // left end piece
   translate([x_left_end, -1]) square([x_rim_out + band - x_left_end, 14]);
 }
@@ -282,13 +289,13 @@ module frame() {
     union() {
       translate([0, fy1, 0]) rotate([90, 0, 0]) linear_extrude(fy1 - fy0) frame_profile();
       // thicker block where the brow bar meets the module
-      box(joint_x[0] - 8, joint_x[1] + 8, fy0 - 4, fy1, 18, 24);
+      box(joint_x[0] - 8, joint_x[1] + 8, fy0 - 4, fy1, z_brow, z_brow + 6);
       // left temple socket, reaching back as far as the right one on the module
       box(x_left_end, x_left_end + temple_t + 8, y_socket - 6, fy0 + eps, -1, 13);
     }
     // screw slots (M2), long along X for adjusting by 4 mm either way; kept
     // apart so the block stays in one piece
-    for (x = joint_x) hull() for (dx = [-4, 4]) translate([x + dx, y_joint, 17]) cylinder(d = 2.4, h = 8);
+    for (x = joint_x) hull() for (dx = [-4, 4]) translate([x + dx, y_joint, z_brow - 1]) cylinder(d = 2.4, h = 8);
     temple_slot(x_temple_l, -splay);
   }
 }

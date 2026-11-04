@@ -12,7 +12,7 @@ The yellow line is the light: from the screen, through the lens, into the beam s
 
 | Holder | Its pointer marks |
 |---|---|
-| Screen holder | the screen's surface |
+| Screen holder | the screen's lit layer, just under its glass |
 | Lens holder | the middle of the lens |
 | Splitter holder (plate or cube) | the center of the splitter, where the light turns |
 
@@ -26,15 +26,15 @@ All files in [`stl/`](stl) are already lying the right way for printing. **No su
 |---|---|
 | `fit_test.stl` | **Print first.** A short rail and a bare holder base to check the sliding fit (see below) |
 | `rail.stl` | 150 mm long, fits a 180 mm bed |
-| `oled_holder.stl` | For the Adafruit 0.96" OLED (29.2 × 26.7 mm board) |
+| `oled_holder.stl` | For the Adafruit 0.96" OLED with STEMMA QT (#326, a 29.2 × 31.75 mm board with two mounting ears). The board hangs on four pins through its mounting holes |
 | `lens_holder_30mm.stl` | For the recommended 30 mm lens. Holders for 20, 25, 25.4 (1 inch, common in school labs) and 34 mm lenses are there too; print one for each lens you might get |
-| `plate_holder.stl` | Holds a flat splitter at 45°: the recommended 25 mm round plate, a microscope slide or clear plastic (up to 1.2 mm thick) |
+| `plate_holder.stl` | Holds a flat splitter at 45°: the recommended 25 mm round plate, a microscope slide or clear plastic, about 0.9–1.3 mm thick. If a thin one leans, wedge it upright with a strip of paper |
 | `plate_holder_thick.stl` | Same, for a thick plate up to 6 mm (teleprompter glass, many lab splitters). Wedge a thinner plate with a strip of folded paper |
 | `cube_holder_20mm.stl`, `cube_holder_25.4mm.stl` | Only if you have a beam splitter cube: 20 mm or 1 inch (25.4 mm), the sizes school labs usually have. There's a `cube_holder_15mm.stl` too. Print them in black if you can: the back wall soaks up stray light |
 
-**Settings:** PLA or PETG, 0.2 mm layers (0.16 mm makes the scale numbers crisper), 3 walls, 15–20% infill. All the parts together use roughly 50 g of filament.
+**Settings:** PLA or PETG, 0.2 mm layers (0.16 mm makes the scale numbers crisper), 3 walls, 15–20% infill. All the parts together use roughly 50 g of filament. **Print the lens holder with a brim:** it prints standing on its front face, and its base sticks up from a small footprint.
 
-**Make the scale easy to read:** either add a filament color change at **7.4 mm** height when slicing the rail, or rub a fine marker over the engraved ticks and wipe the surface clean.
+**Make the scale easy to read:** either add a filament color change at **7.6 mm** height when slicing the rail (at 0.2 mm layers: the layer that starts there is the first one with ticks in it), or rub a fine marker over the engraved ticks and wipe the surface clean.
 
 ### Check the fit first
 
@@ -42,14 +42,14 @@ Print `fit_test.stl` and slide the small block onto the short rail; the ends of 
 
 - **Just right:** slides with a gentle push and stays put when you let go.
 - **Too tight:** in OpenSCAD, raise `clearance` from 0.25 to 0.3 and export the parts again (or sand the ridge lightly).
-- **Too loose:** raise `press` from 0.3 to 0.45.
+- **Too loose:** raise `press` from 0.3 to 0.4.
 
 ### Put it together
 
 1. Slide the screen holder, lens holder and splitter holder onto the rail in that order, pointers on the side with the scale.
-2. **Screen:** press the OLED into its holder face out. The small lips on the side brackets click over the board's edges. The cable leaves through the open side.
-3. **Lens:** press it into the holder from the side with the wide opening; three thin ribs grip it. If one side of the lens is flat, put the flat side toward the screen.
-4. **Splitter:** stand the plate in its slot. (A cube sits on its little table; turn it until the screen's light comes out toward the scale side, where your eye goes.)
+2. **Screen:** hold the board with the screen facing out and its two mounting ears at the bottom, and push its four mounting holes onto the pins until it sits snugly. The STEMMA QT cable plugs in at either side.
+3. **Lens:** press it into the holder from the side with the wide opening, which faces the splitter, flat side first, so the flat side faces the screen. Three thin ribs grip it.
+4. **Splitter:** stand the plate in its slot; if it leans, wedge it upright with a strip of paper. (A cube sits on its little table; turn it until the screen's light comes out toward the scale side, where your eye goes.)
 
 Then follow the steps in [docs/optics.md](../docs/optics.md).
 
@@ -61,7 +61,7 @@ Open `optics_bench.scad` in OpenSCAD and show **Window → Customizer**. Enter y
 
 ![Glasses draft on a head outline](images/glasses.png)
 
-`glasses.scad` is a first full design: a printed frame with the display module in place of the right lens, and a battery pod on the right temple. It's sized from the optics calculator (30 mm lens with a 60 mm focal length, 25 mm round plate splitter 25 mm in front of your pupil). The face sizes are already yours (pupil distance 58.5 mm, frame 140 mm wide, arms 100 mm from hinge to bend, bridge 16.5 mm, head 150 mm), so the **frame and temples can be printed now** to check the fit. **The module and pod are still a draft:** run the optics bench first, put its numbers into the Customizer, then print them.
+`glasses.scad` is a first full design: a printed frame with the display module in place of the right lens, and a battery pod on the right temple. It's sized from the optics calculator (30 mm lens with a 60 mm focal length, 25 mm round plate splitter 25 mm in front of your pupil). The face sizes are already yours (pupil distance 58.5 mm, frame 140 mm wide, arms 100 mm from hinge to bend, bridge 16.5 mm, head 150 mm). **Don't print any of it yet.** The right temple and the brow bar attach to the display module, and the module still has to be redone for the real screen board, which is 31.75 mm tall with two mounting ears, not the plain 26.7 mm board it assumes, and for the numbers from the optics bench. The brow bar's height follows the module's, so the frame waits too.
 
 ![Every glasses part as it prints](images/glasses_parts.png)
 
@@ -84,7 +84,7 @@ All files are in [`stl/glasses/`](stl/glasses), already lying the right way to p
 | `screen_sled.stl` | Holds the OLED and slides inside the module for focus |
 | `pod_body.stl`, `pod_lid.stl` | Feather + battery case that slides onto the right temple |
 
-You also need two M2 × 8 screws (brow bar to module), and two M2 × 10 screws or 2 mm pins (temples).
+You also need four M2 × 10 screws: two hold the brow bar to the module, and two are the temple hinges. The hinge holes are 1.8 mm, so the screws cut their own thread; a piece of 1.75 mm filament works as a temporary pin.
 
 ### Measure first
 
@@ -101,5 +101,5 @@ In the Customizer, set:
 4. **Close:** put the top half on, so the plate's upper edge goes into its groove. For testing, hold the halves together with tape or two small rubber bands; glue them once everything is right. Use epoxy, not super glue: its fumes can fog the lens and splitter.
 5. **Frame:** screw the brow bar onto the module through its two slots. Slide it until the splitter sits right in front of your pupil, then tighten.
 6. **Temples:** slide each temple's tongue into its socket and push a pin or screw through the hole.
-7. **Pod:** put the battery in, the Feather on top, and slide the lid in. Slide the pod onto the right temple from the back.
+7. **Pod:** put the battery in, the Feather on top, and slide the lid in. Slide the pod onto the right temple from its front end, before you pin the temple in: the bend at the back won't pass through the pod's rail.
 8. **Focus:** with the demo firmware running, slide the tab on top of the module until the text is sharp.
