@@ -91,7 +91,7 @@ x_left_eye = -pd;
 x_mid = -pd / 2;                        // the middle of your nose
 x_left_end = x_mid - frame_width / 2;
 x_rim_in = x_mid - bridge_width / 2;    // the left rim's edge at your nose...
-x_rim_out = x_left_end + 5;             // ...and at the side of your head
+x_rim_out = x_left_end + temple_t + 8 - band;  // ...and at the side of your head, so the temple socket sits on the rim
 rim_w = x_rim_in - x_rim_out;
 x_post = x_mid + bridge_width / 2 - 1.5;  // the post on the right side of your nose
 x_temple_l = x_left_end + 4;            // outer face of the left temple
@@ -181,7 +181,8 @@ module splitter_bracket(top) {
 module temple_slot(x0, a) {
   pivot = [x0 + temple_t / 2, y_pin, 0];
   translate(pivot) rotate([0, 0, a]) translate(-pivot) {
-    translate([x0 - clearance, y_socket - 6 - eps, 3 - clearance]) cube([temple_t + 2 * clearance, 6 + eps, temple_h + 2 * clearance]);
+    // runs 2 mm past the back of the socket so the turned slot still opens cleanly
+    translate([x0 - clearance, y_socket - 8, 3 - clearance]) cube([temple_t + 2 * clearance, 8, temple_h + 2 * clearance]);
     translate([x0 - 5, y_pin, 3 + temple_h / 2]) rotate([0, 90, 0]) cylinder(d = 2.1, h = temple_t + 10);
   }
 }
