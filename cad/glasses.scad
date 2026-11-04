@@ -96,7 +96,8 @@ rim_w = x_rim_in - x_rim_out;
 x_post = x_mid + bridge_width / 2 - 1.5;  // the post on the right side of your nose
 x_temple_l = x_left_end + 4;            // outer face of the left temple
 x_temple_r = x_mid + frame_width / 2 - 4 - temple_t;  // inner face of the right temple, mirroring the left
-joint_x = [24, 32];                     // the brow bar's screw slots (nominal pupil distance)
+joint_x = [22, 34];                     // the brow bar's screw slots (nominal pupil distance)
+y_joint = fy0;                          // ...and the line they're on: the middle of the brow bar's block
 
 // Both temple sockets end at the module's back wall, so the two temples sit
 // the same distance back and can be printed the same.
@@ -196,7 +197,7 @@ module module_body() {
     eye_relief();
     temple_slot(x_temple_r, splay);
     // pilot holes for the M2 screws that hold the brow bar
-    for (x = joint_x) translate([x, (fy0 + fy1) / 2, tiz - 3]) cylinder(d = 1.7, h = wall + 4);
+    for (x = joint_x) translate([x, y_joint, tiz - 3]) cylinder(d = 1.7, h = wall + 4);
     // focus slot in the top: the sled's tab sticks out here
     box(x_lens + screen_to_lens - focus_travel - 1.5 + 2, x_lens + screen_to_lens + focus_travel + 3.5 + 2,
         ay - 3, ay + 3, tiz - eps, tiz + wall + eps);
@@ -208,8 +209,8 @@ module module_body() {
   splitter_bracket(false);
   // bosses under the brow bar's screws, so they have plastic to bite into
   for (x = joint_x) difference() {
-    translate([x, (fy0 + fy1) / 2, tiz - 3]) cylinder(d = 5, h = 3 + eps);
-    translate([x, (fy0 + fy1) / 2, tiz - 3 - eps]) cylinder(d = 1.7, h = 3 + 2 * eps);
+    translate([x, y_joint, tiz - 3]) cylinder(d = 5, h = 3 + eps);
+    translate([x, y_joint, tiz - 3 - eps]) cylinder(d = 1.7, h = 3 + 2 * eps);
   }
 }
 
@@ -270,7 +271,7 @@ module frame_profile() {
   }
   // nose-side post and brow bar over the right eye
   translate([x_post, 5]) square([3.5, 19]);
-  translate([x_post, 18]) square([joint_x[1] + 6 - x_post, 6]);
+  translate([x_post, 18]) square([joint_x[1] + 8 - x_post, 6]);
   // left end piece
   translate([x_left_end, -1]) square([x_rim_out + band - x_left_end, 14]);
 }
@@ -280,12 +281,13 @@ module frame() {
     union() {
       translate([0, fy1, 0]) rotate([90, 0, 0]) linear_extrude(fy1 - fy0) frame_profile();
       // thicker block where the brow bar meets the module
-      box(joint_x[0] - 6, joint_x[1] + 6, fy0 - 4, fy1, 18, 24);
+      box(joint_x[0] - 8, joint_x[1] + 8, fy0 - 4, fy1, 18, 24);
       // left temple socket, reaching back as far as the right one on the module
       box(x_left_end, x_left_end + temple_t + 8, y_socket - 6, fy0 + eps, -1, 13);
     }
-    // screw slots (M2), long along X for adjusting
-    for (x = joint_x) hull() for (dx = [-5, 5]) translate([x + dx, (fy0 + fy1) / 2 - 2, 17]) cylinder(d = 2.4, h = 8);
+    // screw slots (M2), long along X for adjusting by 4 mm either way; kept
+    // apart so the block stays in one piece
+    for (x = joint_x) hull() for (dx = [-4, 4]) translate([x + dx, y_joint, 17]) cylinder(d = 2.4, h = 8);
     temple_slot(x_temple_l, -splay);
   }
 }
