@@ -32,7 +32,7 @@ All files in [`stl/`](stl) are already lying the right way for printing. **No su
 | `plate_holder_thick.stl` | Same, for a thick plate up to 6 mm (teleprompter glass, many lab splitters). Wedge a thinner plate with a strip of folded paper |
 | `cube_holder_20mm.stl`, `cube_holder_25.4mm.stl` | Only if you have a beam splitter cube: 20 mm or 1 inch (25.4 mm), the sizes school labs usually have. There's a `cube_holder_15mm.stl` too. Print them in black if you can: the back wall soaks up stray light |
 
-**Settings:** PLA or PETG, 0.2 mm layers (0.16 mm makes the scale numbers crisper), 3 walls, 15–20% infill. All the parts together use roughly 50 g of filament. **Print the lens holder with a brim:** it prints standing on its front face, and its base sticks up from a small footprint.
+**Settings:** PLA or PETG, 0.2 mm layers (0.16 mm makes the scale numbers crisper), 3 walls, 15–20% infill. All the parts together use roughly 50 g of filament. **Print the lens holders and the 1-inch cube holder with a brim:** they stand on small footprints.
 
 **Make the scale easy to read:** either add a filament color change at **7.6 mm** height when slicing the rail (at 0.2 mm layers: the layer that starts there is the first one with ticks in it), or rub a fine marker over the engraved ticks and wipe the surface clean.
 

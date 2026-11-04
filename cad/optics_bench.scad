@@ -309,15 +309,19 @@ module cube_holder() {
   len = max(20, 3 + c + 2.4);
   top = axis_h - cube_size / 2;  // table surface
   w = c + 2 * 1.6;
+  flare = max(0, (w - base_w) / 2);  // how far the table and wall reach past the base on each side
 
   carriage_base(len, mx);
-  // table
-  translate([mx - c / 2 - 1.6, -w / 2, base_t - eps]) cube([c + 1.6, w, top - base_t + eps]);
+  // table and back wall, widening at 45 degrees from the base so they print
+  // without support: [x, length along x, height]
+  for (b = [[mx - c / 2 - 1.6, c + 1.6, top], [mx + c / 2, 2.4, top + cube_size + 1]])
+    hull() {
+      translate([b[0], -base_w / 2, base_t - eps]) cube([b[1], base_w, eps]);
+      translate([b[0], -w / 2, base_t + flare]) cube([b[1], w, b[2] - base_t - flare]);
+    }
   // corner posts
   for (sx = [-1, 1], sy = [-1, 1])
     translate([mx + sx * (c / 2 + 0.8) - 0.8, sy * (c / 2 + 0.8) - 0.8, top - eps]) cube([1.6, 1.6, 2.5]);
-  // back wall
-  translate([mx + c / 2, -w / 2, base_t - eps]) cube([2.4, w, top + cube_size + 1 - base_t]);
 }
 
 // -------------------------------------------- flat glass splitter holder
